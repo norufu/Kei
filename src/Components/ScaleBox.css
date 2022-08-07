@@ -1,0 +1,14 @@
+.scaleBox{
+    width:auto;
+    height:auto;
+    display:flex;
+    position:absolute;
+    left:0px;
+    top:0px;
+    border: 1px solid transparent;
+
+}
+
+.editMode {
+    border: 1px solid yellow;
+}

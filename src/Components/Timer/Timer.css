@@ -1,0 +1,24 @@
+.timerDiv {
+    width:fit-content;
+
+}
+
+.timerP {
+    color:white;
+    padding:5px;
+    margin-bottom:10px;
+    border: 2px solid white;
+    font-size: 30px;
+    display:flex;
+    justify-content: center;
+}
+
+.timerButton {
+    width:100px;
+    height:25px;
+    border: 1px solid black;
+}
+
+.timerButton:hover {
+    background-color: rgb(193, 181, 181);
+}
