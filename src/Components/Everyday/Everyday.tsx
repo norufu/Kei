@@ -3,7 +3,7 @@ import './Everyday.css';
 import Task from './Task';
 
 
-function Everyday({tasks} : {tasks: string[]}) {
+function Everyday({tasks, title} : {tasks: string[], title:string}) {
     const [taskObjects, setTaskObjects] = useState<any>();
 
     useEffect(() => {
@@ -17,7 +17,10 @@ function Everyday({tasks} : {tasks: string[]}) {
 
   return (
     <div className="everyday">
-        {taskObjects}
+        <p className='everydayTitle'>{title}</p>
+        <div className='taskWrapper'>
+          {taskObjects}
+        </div>
     </div>
   );
 }

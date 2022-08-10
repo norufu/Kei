@@ -1,5 +1,21 @@
 .everyday {
     display:flex;
     flex-direction: column;
-    
+    justify-content: start;
+    align-items: center;
+    min-width: 40px;
+    border: 1px white solid;
+    border-top: 3px white solid;
+}
+
+.everydayTitle {
+    margin:5px;
+    color:white;
+    border-bottom: 1px white solid;
+}
+
+.taskWrapper {
+    width:100%;
+    height:auto;
+    padding:5px;
 }

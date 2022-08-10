@@ -1,13 +1,17 @@
 .task {
-    width:fit-content;
+    width:auto;
     display:flex;
     flex-direction: row;
+    padding-left: 15px;
+    padding-right:15px;
 }
 
 .task p {
     color: white;
     padding-right:5px;
     width:auto;
+    font-size: 20px;
+    margin:10px;
 }
 
 .leftTask, .rightTask {
@@ -27,6 +31,18 @@
 
 .rightTask {
     transform: translateX(9px) translateY(9px) rotateY(0deg) rotate(135deg);
-    /* transform: ; */
-   
+    /* transform: ; */  
+}
+
+.taskText {
+    width:75%;
+    margin:0px;
+}
+
+.taskBox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width:25%;
+    margin:0px;
 }

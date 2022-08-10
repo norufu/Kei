@@ -1,10 +1,21 @@
 .dropdown {
+    display:flex;
+    flex-direction: column;
     position:absolute;
-    width:40px;
+    min-width: 40px;
+    width:fit-content;
     height:auto;
     padding:10px;
 }
 
 .menuButton {
     width:100%;
+    border:none;
+    background-color: white;
+    padding:5px;
+    text-align: left;
+}
+
+.menuButton:hover {
+    background-color: rgb(187, 187, 187);
 }
