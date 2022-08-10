@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
 import './ScaleBox.css';
 import { useSelector } from 'react-redux';
 import { RootState } from '../..';
@@ -8,6 +8,7 @@ interface ScaleBoxProps {
 }
 
 function ScaleBox({ children }: ScaleBoxProps) {
+    const thisBox = useRef<HTMLDivElement>(null);
 
     const scaleMode = useSelector((state: RootState) => state.scaleMode);
     const [gridSnap, setGridSnap] = useState(20);
@@ -21,9 +22,6 @@ function ScaleBox({ children }: ScaleBoxProps) {
 
     const [position, setPosition] = useState({x: 0, y: 0});
 
-
-
-
     useEffect(()=> {
         if(scaleMode)
             setEditClass(" editMode")
@@ -35,6 +33,15 @@ function ScaleBox({ children }: ScaleBoxProps) {
 
     },[scaleMode]);
 
+    useEffect(()=> {
+        //update pos
+        if(thisBox.current) {
+            thisBox.current.style.left = position.x + "px";
+            thisBox.current.style.top = position.y + "px";
+        }
+
+    },[position]);
+
     function resize(e: any) {
         if(scaleMode) {
             let dir = e.nativeEvent.wheelDelta > 0 ? 1 : 0;
@@ -43,13 +50,15 @@ function ScaleBox({ children }: ScaleBoxProps) {
                 box.style="transform: scale(" + (scaleX + 0.1) + ")";
                 box.style.left = position.x + "px";
                 box.style.top = position.y + "px";
-                setScaleX(scaleX => scaleX + 0.1)
+                if(scaleX + 0.1 <= 2.5) { //cap size
+                    setScaleX(scaleX => scaleX + 0.1)
+                }
             }
             else {
                 box.style="transform: scale(" + (scaleX - 0.1) + ")";
                 box.style.left = position.x + "px";
                 box.style.top = position.y + "px";
-                if(scaleX - 0.1 >= 0.2) {
+                if(scaleX - 0.1 >= 0.2) { //cap size
                     setScaleX(scaleX => scaleX - 0.1)  
                 }
             }
@@ -72,6 +81,12 @@ function ScaleBox({ children }: ScaleBoxProps) {
     function mouseUp() {
         setDragging(dragging => false);
         setDragOffset({offX:-1, offY:-1});
+
+        //snap to grid on release
+        const x = position.x - position.x % gridSnap;
+        const y = position.y - position.y % gridSnap;
+        setPosition({x: x, y: y})
+
         console.log("yuuh")
     }
     function move(e:any) {
@@ -79,9 +94,10 @@ function ScaleBox({ children }: ScaleBoxProps) {
             if(dragOffset.offX === -1 || dragOffset.offY === -1) {
                 return
             }
-
-            const x =  e.clientX - dragOffset.offX - ((e.clientX - (e.currentTarget.clientWidth/2)) % gridSnap);
-            const y =  e.clientY - dragOffset.offY - ((e.clientY - (e.currentTarget.clientHeight/2)) % gridSnap);
+            // - ((e.clientX - (e.currentTarget.clientWidth/2)) % gridSnap)
+            // - ((e.clientY - (e.currentTarget.clientHeight/2)) % gridSnap)
+            const x = e.clientX - dragOffset.offX ;
+            const y = e.clientY - dragOffset.offY ;
 
             e.currentTarget.style.left = x + "px";
             e.currentTarget.style.top = y + "px";
@@ -90,7 +106,7 @@ function ScaleBox({ children }: ScaleBoxProps) {
     }
 
     return (
-        <div onMouseDown={mouseDown} onMouseUp={mouseUp} onMouseMove={move} onWheel={resize} onClick={move} className={'scaleBox' + editClass}>
+        <div ref={thisBox} onMouseDown={mouseDown} onMouseUp={mouseUp} onMouseMove={move} onWheel={resize} onClick={move} className={'scaleBox' + editClass}>
             {children}
         </div>
     );

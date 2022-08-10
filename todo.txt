@@ -3,3 +3,7 @@ scalebox
 
 
 widget ideas
+-paint
+-pomodoro tree
+-stickynote
+-+-2 days
