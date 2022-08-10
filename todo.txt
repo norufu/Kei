@@ -1,0 +1,5 @@
+scalebox
+-snap on release
+
+
+widget ideas

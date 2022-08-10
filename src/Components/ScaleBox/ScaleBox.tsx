@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import './ScaleBox.css';
+import { scaleContext } from "../../Views/Dashboard/Dashboard"
 
 interface ScaleBoxProps {
-    scaleMode: boolean;
     children: JSX.Element;
 }
 
-function ScaleBox({ scaleMode, children }: ScaleBoxProps) {
+function ScaleBox({ children }: ScaleBoxProps) {
     // const [scaleMode, setScaleMode] = useState(false);
     // const { scaleMode } = props.scaleMode;
+    const {scaleMode} = useContext(scaleContext);
     const [gridSnap, setGridSnap] = useState(20);
     const [dragging, setDragging] = useState(false);
+    const [dragOffset, setDragOffset] = useState({offX:-1, offY:-1});
+
     const [editClass, setEditClass] = useState("");
 
     const [scaleX, setScaleX] = useState(1);
@@ -20,12 +23,14 @@ function ScaleBox({ scaleMode, children }: ScaleBoxProps) {
 
 
 
+
     useEffect(()=> {
         if(scaleMode)
             setEditClass(" editMode")
         else {
             setEditClass("")
             setDragging(false);
+            setDragOffset({offX:-1, offY:-1});
         }
 
     },[scaleMode]);
@@ -51,16 +56,32 @@ function ScaleBox({ scaleMode, children }: ScaleBoxProps) {
         }
     }
 
-    function mouseDown() {
+    function changeDragOffset(e:any) { //calculate offset for moving function
+        const w = e.currentTarget.clientWidth;
+        const divRX = position.x + w;
+
+        const h = e.currentTarget.clientHeight;
+        const divRY = position.y + h;
+        setDragOffset({offX: w - (divRX - e.clientX), offY: h - (divRY - e.clientY)});
+    }
+
+    function mouseDown(e:any) {
         setDragging(dragging => true);
+        changeDragOffset(e);
     }
     function mouseUp() {
         setDragging(dragging => false);
+        setDragOffset({offX:-1, offY:-1});
+        console.log("yuuh")
     }
     function move(e:any) {
         if(dragging && scaleMode && e !== null) {
-            const x =  e.clientX - (e.currentTarget.clientWidth/2) - ((e.clientX - (e.currentTarget.clientWidth/2)) % gridSnap);
-            const y =  e.clientY - (e.currentTarget.clientHeight/2) - ((e.clientY - (e.currentTarget.clientHeight/2)) % gridSnap);
+            if(dragOffset.offX === -1 || dragOffset.offY === -1) {
+                return
+            }
+
+            const x =  e.clientX - dragOffset.offX - ((e.clientX - (e.currentTarget.clientWidth/2)) % gridSnap);
+            const y =  e.clientY - dragOffset.offY - ((e.clientY - (e.currentTarget.clientHeight/2)) % gridSnap);
 
             e.currentTarget.style.left = x + "px";
             e.currentTarget.style.top = y + "px";
