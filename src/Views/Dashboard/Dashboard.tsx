@@ -3,21 +3,20 @@ import DropdownMenu from '../../Components/DropdownMenu/DropdownMenu';
 import Everyday from '../../Components/Everyday/Everyday';
 import ScaleBox from '../../Components/ScaleBox/ScaleBox';
 import Timer from '../../Components/Timer/Timer';
+import { toggleScale } from '../../Actions/Index';
+import { useDispatch, useSelector } from 'react-redux';
 import './Dashboard.css';
+import { RootState } from '../..';
 
-
-const scaleModeContext = {
-  scaleMode: true,
-}
-export const scaleContext = React.createContext(scaleModeContext)
 
 function Dashboard() {
-  const [scaleMode, setScaleMode] = useState(false);
+  const scaleMode = useSelector((state: RootState) => state.scaleMode);
   const [showMenu, setShowMenu] = useState(false);
   const [menuCords, setMenuCords] = useState({x:0, y:0});
   const [widgets, setWidgets] = useState<JSX.Element[]>([]);
 
   const [gridClass, setGridClass] = useState("");
+  const dispatch = useDispatch();
 
   useEffect(() => {
     document.addEventListener("keydown", keyPress);
@@ -28,6 +27,7 @@ function Dashboard() {
   }, []);
 
   useEffect(() => {
+    console.log(scaleMode)
     if(scaleMode)
       setGridClass("grid");
     else
@@ -36,7 +36,7 @@ function Dashboard() {
 
   function keyPress(e:any) {
     if(e.key === 'Shift') {
-      setScaleMode(scaleMode => !scaleMode);
+      dispatch(toggleScale());
     }
   }
   function openMenu(e:any) {
@@ -83,13 +83,11 @@ function Dashboard() {
   }
 
   return (
-    <scaleContext.Provider value={{scaleMode: scaleMode}}>
-      <div className={"dashboard " + gridClass}>
-          {showMenu && <DropdownMenu options={[{text:"Timer", handler:menuAddWidget}, {text:"Everyday", handler:menuAddWidget}]} cords={menuCords} closeHandler={closeHandler}/>}
-          <ScaleBox children={<Timer></Timer>}></ScaleBox>
-          {widgets}
-      </div>
-    </scaleContext.Provider>
+    <div className={"dashboard " + gridClass}>
+        {showMenu && <DropdownMenu options={[{text:"Timer", handler:menuAddWidget}, {text:"Everyday", handler:menuAddWidget}]} cords={menuCords} closeHandler={closeHandler}/>}
+        <ScaleBox children={<Timer></Timer>}></ScaleBox>
+        {widgets}
+    </div>
   );
 }
 

@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useContext } from 'react';
 import './ScaleBox.css';
-import { scaleContext } from "../../Views/Dashboard/Dashboard"
+import { useSelector } from 'react-redux';
+import { RootState } from '../..';
 
 interface ScaleBoxProps {
     children: JSX.Element;
 }
 
 function ScaleBox({ children }: ScaleBoxProps) {
-    // const [scaleMode, setScaleMode] = useState(false);
-    // const { scaleMode } = props.scaleMode;
-    const {scaleMode} = useContext(scaleContext);
+
+    const scaleMode = useSelector((state: RootState) => state.scaleMode);
     const [gridSnap, setGridSnap] = useState(20);
     const [dragging, setDragging] = useState(false);
     const [dragOffset, setDragOffset] = useState({offX:-1, offY:-1});
@@ -88,7 +88,6 @@ function ScaleBox({ children }: ScaleBoxProps) {
             setPosition({x: x, y: y})
         }
     }
-// var scaleX = element.getBoundingClientRect().width / element.offsetWidth;
 
     return (
         <div onMouseDown={mouseDown} onMouseUp={mouseUp} onMouseMove={move} onWheel={resize} onClick={move} className={'scaleBox' + editClass}>
