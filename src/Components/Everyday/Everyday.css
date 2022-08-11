@@ -4,8 +4,9 @@
     justify-content: start;
     align-items: center;
     min-width: 40px;
-    border: 1px white solid;
-    border-top: 3px white solid;
+    /* border: 1px white solid; */
+    /* border-top: 3px white solid; */
+    width:var(--auto);
 }
 
 .everydayTitle {
@@ -18,4 +19,16 @@
     width:100%;
     height:auto;
     padding:5px;
+}
+
+.addTaskDiv {
+    width:100%;
+    height:20px;
+}
+
+.addTaskButton {
+    width:100%;
+    background-color: white;
+    border:none;
+    height:100%;
 }

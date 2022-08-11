@@ -63,7 +63,7 @@ function Dashboard() {
         newWidget = <Timer/>
         break;
       case "everyday":
-        newWidget = <Everyday tasks={[]} title="title"/>
+        newWidget = <Everyday tasks={[]} title="title" width={100} height={200}/>
         break;
       default:
         newWidget = null;
@@ -86,7 +86,7 @@ function Dashboard() {
     <div className={"dashboard " + gridClass}>
         {showMenu && <DropdownMenu options={[{text:"Timer", handler:menuAddWidget}, {text:"Everyday", handler:menuAddWidget}]} cords={menuCords} closeHandler={closeHandler}/>}
         {/* <ScaleBox children={<Timer></Timer>}></ScaleBox> */}
-        <ScaleBox children={<Everyday tasks={["Japanese", "Mandarin", "Workout"]} title={"Everyday"}></Everyday>}></ScaleBox>
+        <ScaleBox children={<Everyday tasks={["Japanese", "Mandarin", "Workout"]} title={"Everyday"} width={100} height={200}></Everyday>}></ScaleBox>
         {widgets}
     </div>
   );

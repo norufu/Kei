@@ -12,8 +12,17 @@
     width:auto;
     font-size: 20px;
     margin:10px;
+    white-space: nowrap;
 }
 
+[contenteditable] {
+    outline: 0px solid transparent;
+}
+[contenteditable]:focus {
+    color:rgb(177, 177, 177);
+    /* background-color: rgb(34, 34, 34); */
+    /* background-color: blue; */
+}
 .leftTask, .rightTask {
     width: 50px;
     height: 25px;
