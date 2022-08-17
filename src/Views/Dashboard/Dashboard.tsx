@@ -87,6 +87,8 @@ function Dashboard() {
         {showMenu && <DropdownMenu options={[{text:"Timer", handler:menuAddWidget}, {text:"Everyday", handler:menuAddWidget}]} cords={menuCords} closeHandler={closeHandler}/>}
         {/* <ScaleBox children={<Timer></Timer>}></ScaleBox> */}
         <ScaleBox children={<Everyday tasks={["Japanese", "Mandarin", "Workout"]} title={"Everyday"} width={100} height={200}></Everyday>}></ScaleBox>
+        <ScaleBox children={<div className='test'><p>Tilted</p></div>}></ScaleBox>
+
         {widgets}
     </div>
   );

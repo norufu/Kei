@@ -14,8 +14,8 @@ function Everyday({tasks, title, width, height} : {tasks: string[], title:string
 
     useEffect(() => {
       if(thisDiv.current) {
-        thisDiv.current.style.width = width + "px";
-        thisDiv.current.style.height = height + "px";
+        // thisDiv.current.style.width = width + "px";
+        // thisDiv.current.style.height = height + "px";
       }
     },[]);
 
