@@ -9,6 +9,7 @@
     top:0px;
     border: 1px solid transparent;
     transform-origin: top left;
+    /* cursor: sw-resize; */
 }
 
 .editMode {

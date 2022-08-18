@@ -130,51 +130,60 @@ function ScaleBox({ children }: ScaleBoxProps) {
         setDragOffset({offX: w - (divRX - e.clientX), offY: h - (divRY - e.clientY)});
     }
 
-    function mouseDown(e:any) {
-        if(!scaleMode)
-            return;
+    function checkResizeEdges(e:any) {
         let rect = e.currentTarget.getBoundingClientRect()
         let mx = e.clientX;
         let my = e.clientY;
-        let isResizing = false;
-
+        let mouseInArea = {x:-1, y:-1}
 
         if(rect.left < mx && mx < rect.left + resizeBuffer) {
             //left side
-            setResizingX(0);
-            isResizing = true;
+            mouseInArea.x = 0
         }
         else if (rect.right > mx && mx > rect.right - resizeBuffer) {
-            setResizingX(1);
-            isResizing = true;
+            mouseInArea.x = 1
         }
         if(rect.top < my && my < rect.top + resizeBuffer) {
             //top side
-            setResizingY(0);
-            isResizing = true;
+            mouseInArea.y = 0
         }
         else if (rect.bottom > my && my > rect.bottom - resizeBuffer) {
-            setResizingY(1);
-            isResizing = true;
+            mouseInArea.y = 1
         }
+        return(mouseInArea);
+    }
+
+    function mouseDown(e:any) {
+        if(!scaleMode)
+            return;
+        // let rect = e.currentTarget.getBoundingClientRect()
+
+        let isResizing = false;
+        let mInArea = checkResizeEdges(e); //left/top are 0, right/bottom are 1
+        if(mInArea.x >= 0) {setResizingX(mInArea.x); isResizing=true;}
+        if(mInArea.y >= 0) {setResizingY(mInArea.y); isResizing=true;}
 
         //drag
         if(isResizing === false) {
+            if(thisBox.current) thisBox.current.style.cursor = "grabbing";
+
             setDragging(true);
             changeDragOffset(e);
         }
     }
     function mouseUp() {
+        //snap to grid on release, < 10 snap left/up >10 snap right/down
+        // const x =  position.x % gridSnap <= gridSnap/2 ? position.x - position.x % gridSnap :  position.x + (gridSnap - position.x % gridSnap)
+        // const y =  position.y % gridSnap <= gridSnap/2 ? position.y - position.y % gridSnap :  position.y + (gridSnap - position.y % gridSnap)
+        // setPosition({x: x, y: y})
+        snapToGrid()
         setDragging(false);
         setResizingX(-1)
         setResizingY(-1)
         setDragOffset({offX:-1, offY:-1});
         setMouseCords({x:-1, y:-1})
 
-        //snap to grid on release, < 10 snap left/up >10 snap right/down
-        const x =  position.x % gridSnap <= gridSnap/2 ? position.x - position.x % gridSnap :  position.x + (gridSnap - position.x % gridSnap)
-        const y =  position.y % gridSnap <= gridSnap/2 ? position.y - position.y % gridSnap :  position.y + (gridSnap - position.y % gridSnap)
-        setPosition({x: x, y: y})
+
     }
 
     function checkSize() { //scale is breaking this somehow
@@ -291,6 +300,7 @@ function ScaleBox({ children }: ScaleBoxProps) {
 
         //ensure mouseup is fired
         if(e._reactName === "onDragEnd") {
+            snapToGrid();
             mouseUp();
         }
     }
@@ -327,6 +337,56 @@ function ScaleBox({ children }: ScaleBoxProps) {
         }
     }
 
+    function snapToGrid() {
+        const x =  position.x % gridSnap <= gridSnap/2 ? position.x - position.x % gridSnap :  position.x + (gridSnap - position.x % gridSnap)
+        const y =  position.y % gridSnap <= gridSnap/2 ? position.y - position.y % gridSnap :  position.y + (gridSnap - position.y % gridSnap)
+
+        setPosition({x: x, y: y})
+    }
+
+    //grab, grabbing, nw-resize
+    function changeCursor(e:any) {
+        if(!thisBox.current || !scaleMode) return;
+        console.log(e);
+        let mInArea = checkResizeEdges(e); //left/top are 0, right/bottom are 1
+        if(mInArea.x === 1 && mInArea.y === 1) {
+            //se-resize
+            thisBox.current.style.cursor = "se-resize";
+        }
+        else if(mInArea.x === 0 && mInArea.y === 0) {
+            //nw-resize
+            thisBox.current.style.cursor = "nw-resize";
+        }
+        else if(mInArea.x === 0 && mInArea.y === 1) {
+            //sw-resize
+            thisBox.current.style.cursor = "sw-resize";
+        }
+        else if(mInArea.x === 1 && mInArea.y === 0) {
+            //ne-resize
+            thisBox.current.style.cursor = "ne-resize";
+        }
+        else if(mInArea.x === 1) {
+            //e-resize
+            thisBox.current.style.cursor = "e-resize";
+        }
+        else if(mInArea.y === 1) {
+            //s-resize
+            thisBox.current.style.cursor = "s-resize";
+        }
+        else if(mInArea.x === 0) {
+            //w-resize
+            thisBox.current.style.cursor = "w-resize";
+        }
+        else if(mInArea.y === 0) {
+            //n-resize
+            thisBox.current.style.cursor = "n-resize";
+        }
+        else {
+            //grab
+            thisBox.current.style.cursor = "grab";
+        }
+    }
+
     function hideDragImage(e:any) {
         var img = document.createElement('img')
         img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
@@ -334,7 +394,15 @@ function ScaleBox({ children }: ScaleBoxProps) {
     }
 
     return (
-        <div ref={thisBox} onMouseDown={mouseDown} draggable={true} onDragStart={hideDragImage} onDrag={move} onDragEnd={move} className={'scaleBox' + editClass}>
+        <div ref={thisBox} 
+        onMouseDown={mouseDown} 
+        draggable={true} 
+        onDragStart={hideDragImage} 
+        onDrag={move} 
+        onDragEnd={move} 
+        onMouseMove={changeCursor}
+        // onMouseLeave={changeCursor}
+        className={'scaleBox' + editClass}>
             {children}
         </div>
     );
