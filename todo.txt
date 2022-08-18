@@ -1,6 +1,13 @@
-scalebox
--snap on release
+MVP
+-authentication
+-save state/data
+-handful of widgets
 
+scalebox
+-remove snap delay/snap width&height
+-input objects block the drag
+-hover over mouse icons
+-remove globe/default cursor
 
 widget ideas
 -paint
