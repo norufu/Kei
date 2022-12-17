@@ -7,6 +7,8 @@ import { toggleScale } from '../../Actions/Index';
 import { useDispatch, useSelector } from 'react-redux';
 import './Dashboard.css';
 import { RootState } from '../..';
+import axios from 'axios'; 
+import internal from 'stream';
 
 
 function Dashboard() {
@@ -18,16 +20,40 @@ function Dashboard() {
   const [gridClass, setGridClass] = useState("");
   const dispatch = useDispatch();
 
+  const [serverData, setServerData] = useState<any[]>([]);
+
+
   useEffect(() => {
+    console.log("DASHBAORD LOADED")
+    axios.get("http://127.0.0.1:8000")
+    .then((response : any) => {
+      console.log(response.data);
+      setServerData(response.data);
+    })
+
     document.addEventListener("keydown", keyPress);
-    // document.addEventListener("mousedown", mouseHandler);
+
     document.addEventListener("contextmenu", (e) => {
       openMenu(e)
     });
   }, []);
 
   useEffect(() => {
-    console.log(scaleMode)
+    //generate widgets from serverdata
+    if(serverData != undefined){
+      console.log("SERVER DATA UPDATED")
+
+      for(let i = 0; i < serverData.length; i++) {
+        console.log(serverData[i])
+        addWidget(serverData[i].type, serverData[i].posX, serverData[i].posY, serverData[i].w, serverData[i].h, serverData[i].data)
+      }
+
+    }
+  }, [serverData]);
+
+
+  useEffect(() => {
+    //show/hide grid
     if(scaleMode)
       setGridClass("grid");
     else
@@ -39,7 +65,8 @@ function Dashboard() {
       dispatch(toggleScale());
     }
   }
-  function openMenu(e:any) {
+
+  function openMenu(e:any) { // on right click open menu to add
     let mx = e.clientX;
     let my = e.clientY;
     setShowMenu(true);
@@ -53,27 +80,25 @@ function Dashboard() {
 // 
   function menuAddWidget(e:any) {
     console.log(e.currentTarget.id)
-    addWidget(e.currentTarget.id);
+    addWidget(e.currentTarget.id, 0, 0, 0, 0, {});
   }
-  function addWidget(type:string) {
-    console.log(type);
+
+  function addWidget(type:string, posX:number, posY:number, w:number, h:number, data:any) {
     let newWidget;
     switch(type.toLowerCase()) {
       case "timer":
-        newWidget = <Timer/>
+        newWidget = <Timer posX={posX} posY={posY} w={w} h={h} data={data}/>
         break;
       case "everyday":
-        newWidget = <Everyday tasks={[]} title="title" width={100} height={200}/>
+        newWidget = <Everyday posX={posX} posY={posY} w={w} h={h} data={data}/>
         break;
       default:
         newWidget = null;
         break;
     }
-    console.log(newWidget)
     if(newWidget) { //add the new widget
       let k = widgets.length;
-      let addWidget = <ScaleBox key={k} children={newWidget}></ScaleBox>
-      console.log(addWidget);
+      let addWidget = <ScaleBox key={k} posX={posX} posY={posY} children={newWidget}></ScaleBox>
       setWidgets(oldData => {
         if(oldData) return [...oldData, addWidget]; 
         else return [addWidget]; 
@@ -85,9 +110,6 @@ function Dashboard() {
   return (
     <div className={"dashboard " + gridClass}>
         {showMenu && <DropdownMenu options={[{text:"Timer", handler:menuAddWidget}, {text:"Everyday", handler:menuAddWidget}]} cords={menuCords} closeHandler={closeHandler}/>}
-        {/* <ScaleBox children={<Timer></Timer>}></ScaleBox> */}
-        <ScaleBox children={<Everyday tasks={["Japanese", "Mandarin", "Workout"]} title={"Everyday"} width={100} height={200}></Everyday>}></ScaleBox>
-        <ScaleBox children={<div className='test'><p>Tilted</p></div>}></ScaleBox>
 
         {widgets}
     </div>

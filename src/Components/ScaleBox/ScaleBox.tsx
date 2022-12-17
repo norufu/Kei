@@ -5,9 +5,11 @@ import { RootState } from '../..';
 
 interface ScaleBoxProps {
     children: JSX.Element;
+    posX: number;
+    posY: number;
 }
 
-function ScaleBox({ children }: ScaleBoxProps) {
+function ScaleBox({children, posX, posY }: ScaleBoxProps) {
     const thisBox = useRef<HTMLDivElement>(null);
 
     const scaleMode = useSelector((state: RootState) => state.scaleMode);
@@ -30,10 +32,12 @@ function ScaleBox({ children }: ScaleBoxProps) {
     useEffect(()=> {
         if(thisBox.current) {
             let childElement =  thisBox.current.children[0] as HTMLElement | null;
-            console.log(childElement?.style.minWidth);
+            // console.log(childElement?.style.minWidth);
             let rect = childElement?.getBoundingClientRect();
             if(rect) setMinDimensions({w:rect.width, h:rect.height})
-            console.log(rect);
+
+            //set initial position on load
+            setPosition({x: posX, y: posY});
         }
     }, []);
 
@@ -87,11 +91,11 @@ function ScaleBox({ children }: ScaleBoxProps) {
             if(thisBox.current) {
                 let childElement =  thisBox.current.children[0] as HTMLElement | null;
                 let rect = childElement?.getBoundingClientRect();
-                console.log(box);
+                // console.log(box);
                 if(childElement && rect)  {
                     childElement.style.width = rect.width + "px";
                     childElement.style.height = rect.height + "px";
-                    console.log(childElement.style.width, childElement.style.height);
+                    // console.log(childElement.style.width, childElement.style.height);
                 }
 
             }
@@ -195,10 +199,10 @@ function ScaleBox({ children }: ScaleBoxProps) {
         if(w !== undefined && h !== undefined && widgetBox !== null) {
             w -=2;
             h -=2;
-            console.log(rect);
-            console.log(w, gridSnap)
-            console.log("KDJSFLDKS " + w%gridSnap)
-            console.log(w - (w % gridSnap));
+            // console.log(rect);
+            // console.log(w, gridSnap)
+            // console.log("KDJSFLDKS " + w%gridSnap)
+            // console.log(w - (w % gridSnap));
             let newW, newH;
             if(w%gridSnap !== 0) {
                 newW = w % gridSnap < gridSnap/2 ? w - (w % gridSnap) : w + (gridSnap - w % gridSnap);
@@ -347,7 +351,7 @@ function ScaleBox({ children }: ScaleBoxProps) {
     //grab, grabbing, nw-resize
     function changeCursor(e:any) {
         if(!thisBox.current || !scaleMode) return;
-        console.log(e);
+        // console.log(e);
         let mInArea = checkResizeEdges(e); //left/top are 0, right/bottom are 1
         if(mInArea.x === 1 && mInArea.y === 1) {
             //se-resize

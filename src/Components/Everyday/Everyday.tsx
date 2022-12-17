@@ -2,27 +2,39 @@ import React, { useEffect, useRef, useState } from 'react';
 import './Everyday.css';
 import Task from './Task';
 
-
-function Everyday({tasks, title, width, height} : {tasks: string[], title:string, width:number, height:number}) {
+// tasks, title, width, height
+function Everyday({posX, posY, w, h, data} : {posX:number, posY:number, w:number, h:number, data:any}) {
     const thisDiv = useRef<HTMLDivElement>(null);
 
-    const [taskArr, setTaskArr] = useState(tasks);
+    const [taskArr, setTaskArr] = useState<any[]>([]);
+    const [title, setTitle] = useState("Title");
 
     const [taskObjects, setTaskObjects] = useState<any>();
     const [showAdd, setShowAdd] = useState(false);
 
 
+    console.log("uhh")
+
     useEffect(() => {
       if(thisDiv.current) {
-        // thisDiv.current.style.width = width + "px";
-        // thisDiv.current.style.height = height + "px";
+        console.log(data.title);
+
+        if(data.title != undefined) 
+          setTitle(data.title);
+
+        console.log(data.tasks);
+        setTaskArr(data.tasks);
+        thisDiv.current.style.width = w + "px";
+        thisDiv.current.style.height = h + "px";
       }
     },[]);
 
     useEffect(() => {
+      if(taskArr==undefined) return;
         let tempArr = [];
         for(let i = 0; i < taskArr.length; i++) {
-            let o = <Task key={i} task={taskArr[i]}></Task>
+            console.log(taskArr[i])
+            let o = <Task key={i} task={taskArr[i].task} value={taskArr[i].value}></Task>
             tempArr.push(o);
         }
         setTaskObjects(tempArr);
