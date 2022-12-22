@@ -3,7 +3,7 @@ import './Everyday.css';
 import Task from './Task';
 
 // tasks, title, width, height
-function Everyday({posX, posY, w, h, data} : {posX:number, posY:number, w:number, h:number, data:any}) {
+function Everyday({data, dataHandler} : {data:any, dataHandler: Function}) {
     const thisDiv = useRef<HTMLDivElement>(null);
 
     const [taskArr, setTaskArr] = useState<any[]>([]);
@@ -12,20 +12,12 @@ function Everyday({posX, posY, w, h, data} : {posX:number, posY:number, w:number
     const [taskObjects, setTaskObjects] = useState<any>();
     const [showAdd, setShowAdd] = useState(false);
 
-
-    console.log("uhh")
-
     useEffect(() => {
       if(thisDiv.current) {
-        console.log(data.title);
-
         if(data.title != undefined) 
           setTitle(data.title);
 
-        console.log(data.tasks);
         setTaskArr(data.tasks);
-        thisDiv.current.style.width = w + "px";
-        thisDiv.current.style.height = h + "px";
       }
     },[]);
 
@@ -33,7 +25,6 @@ function Everyday({posX, posY, w, h, data} : {posX:number, posY:number, w:number
       if(taskArr==undefined) return;
         let tempArr = [];
         for(let i = 0; i < taskArr.length; i++) {
-            console.log(taskArr[i])
             let o = <Task key={i} task={taskArr[i].task} value={taskArr[i].value}></Task>
             tempArr.push(o);
         }

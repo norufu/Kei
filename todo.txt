@@ -16,33 +16,45 @@ widget ideas
 -+-2 days
 
 
+//saving changes
+-set dimensions in scalebox
+-return data from Components
+
+
+
+
 
 //notes
-[
-    widg1: {},
-    widg2: {
-        type: everyday,
-        posx: 50,
-        posy: 50,
-        w: 100,
-        h: 400,
-        data: { Japanese: 1,
-            Chinese: 0.5,
-            Exercise: 0
-        },
-    },
-    widg3: {
-        type: timer,
-        posx: 200,
-        posy: 50,
-        w: 300,
-        h: 150,
-        data: { 
-            day : 12/16/22,
-            timeSpent : 5400
-        },
-    },
-]
+    x = [{
+        'type':'Everyday',
+        'posX': 50,
+        'posY': 50,
+        'w': 200,
+        'h': 400,
+        'data': {
+            'title': "Dailys",
+            'tasks' : [
+                {'task' : 'Japanese', 'value': 2},
+                {'task' : 'Chinese', 'value': 1},                
+                {'task' : 'Exercise', 'value': 0}
+            ]
+        }
+    }
+    ,{
+        'type':'Timer',
+        'posX': 50,
+        'posY': 500,
+        'w': 300,
+        'h': 150,
+        'data': {}  
+    }]
+
+
+Widget(type, posx, posy, w, h, data)
+
+    <scaleBox posX, posY>
+        <type w, h, data></type>
+    </scaleBox>
 
 Need to 
     -update the data when changed

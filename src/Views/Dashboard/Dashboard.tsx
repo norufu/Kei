@@ -9,6 +9,7 @@ import './Dashboard.css';
 import { RootState } from '../..';
 import axios from 'axios'; 
 import internal from 'stream';
+import Widget from '../../Components/Widget/Widget';
 
 
 function Dashboard() {
@@ -51,9 +52,22 @@ function Dashboard() {
     }
   }, [serverData]);
 
+  //save board state
 
+  const dataCallback = (widgetData : {}) =>{
+    console.log(widgetData);
+  }
+
+  function saveToServer() {
+    console.log(widgets[0].props.children);
+
+    
+    let saveData = []
+
+  }
+
+  //show/hide grid
   useEffect(() => {
-    //show/hide grid
     if(scaleMode)
       setGridClass("grid");
     else
@@ -84,34 +98,20 @@ function Dashboard() {
   }
 
   function addWidget(type:string, posX:number, posY:number, w:number, h:number, data:any) {
-    let newWidget;
-    switch(type.toLowerCase()) {
-      case "timer":
-        newWidget = <Timer posX={posX} posY={posY} w={w} h={h} data={data}/>
-        break;
-      case "everyday":
-        newWidget = <Everyday posX={posX} posY={posY} w={w} h={h} data={data}/>
-        break;
-      default:
-        newWidget = null;
-        break;
-    }
-    if(newWidget) { //add the new widget
-      let k = widgets.length;
-      let addWidget = <ScaleBox key={k} posX={posX} posY={posY} children={newWidget}></ScaleBox>
-      setWidgets(oldData => {
-        if(oldData) return [...oldData, addWidget]; 
-        else return [addWidget]; 
-      })
-      }
-
+    let k = widgets.length;
+    let newWidget = <Widget key={k} save={dataCallback} type={type} posX={posX} posY={posY} w={w} h={h} data={data} ></Widget>;
+    setWidgets(oldData => {
+      if(oldData) return [...oldData, newWidget]; 
+      else return [newWidget]; 
+    })
   }
 
   return (
     <div className={"dashboard " + gridClass}>
         {showMenu && <DropdownMenu options={[{text:"Timer", handler:menuAddWidget}, {text:"Everyday", handler:menuAddWidget}]} cords={menuCords} closeHandler={closeHandler}/>}
-
+        {/* <Widget type="timer" posX={500} posY={100} w={150} h={300} data={{}}></Widget> */}
         {widgets}
+        <button onClick={saveToServer}>Save Test</button>
     </div>
   );
 }
