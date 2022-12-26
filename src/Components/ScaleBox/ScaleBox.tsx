@@ -5,9 +5,14 @@ import { RootState } from '../..';
 
 interface ScaleBoxProps {
     children: JSX.Element;
+    posX: number;
+    posY: number;
+    w: number;
+    h: number;
+    dataHandler: Function; //updates the widget on positioning
 }
 
-function ScaleBox({ children }: ScaleBoxProps) {
+function ScaleBox({children, posX, posY, w, h, dataHandler }: ScaleBoxProps) {
     const thisBox = useRef<HTMLDivElement>(null);
 
     const scaleMode = useSelector((state: RootState) => state.scaleMode);
@@ -26,14 +31,18 @@ function ScaleBox({ children }: ScaleBoxProps) {
     const [scaleY, setScaleY] = useState(1);
 
     const [position, setPosition] = useState({x: 0, y: 0});
+    const [dimensions, setDimensions] = useState({w: 0, h: 0});
 
     useEffect(()=> {
         if(thisBox.current) {
             let childElement =  thisBox.current.children[0] as HTMLElement | null;
-            console.log(childElement?.style.minWidth);
+            // console.log(childElement?.style.minWidth);
             let rect = childElement?.getBoundingClientRect();
             if(rect) setMinDimensions({w:rect.width, h:rect.height})
-            console.log(rect);
+
+            //set initial position and size on load
+            setPosition({x: posX, y: posY});
+            setDimensions({w: w, h: h})
         }
     }, []);
 
@@ -56,8 +65,22 @@ function ScaleBox({ children }: ScaleBoxProps) {
             thisBox.current.style.left = position.x + "px";
             thisBox.current.style.top = position.y + "px";
         }
-
+        //update widget component on position
+        dataHandler(position.x, position.y, dimensions.w, dimensions.h);
     },[position]);
+
+    useEffect(()=> {
+        //update dimensions of the child component
+        if(thisBox.current) {
+            let childElement =  thisBox.current.children[0] as HTMLElement | null;
+            if(childElement)  {
+                childElement.style.width = w + "px";
+                childElement.style.height = h + "px";
+            }
+        }
+        //update widget component on position and dimensions
+        dataHandler(position.x, position.y, dimensions.w, dimensions.h);
+    },[dimensions]);
 
     function resize(e: any) {
         if(scaleMode && thisBox.current) {
@@ -87,11 +110,11 @@ function ScaleBox({ children }: ScaleBoxProps) {
             if(thisBox.current) {
                 let childElement =  thisBox.current.children[0] as HTMLElement | null;
                 let rect = childElement?.getBoundingClientRect();
-                console.log(box);
+                // console.log(box);
                 if(childElement && rect)  {
                     childElement.style.width = rect.width + "px";
                     childElement.style.height = rect.height + "px";
-                    console.log(childElement.style.width, childElement.style.height);
+                    // console.log(childElement.style.width, childElement.style.height);
                 }
 
             }
@@ -182,8 +205,6 @@ function ScaleBox({ children }: ScaleBoxProps) {
         setResizingY(-1)
         setDragOffset({offX:-1, offY:-1});
         setMouseCords({x:-1, y:-1})
-
-
     }
 
     function checkSize() { //scale is breaking this somehow
@@ -195,10 +216,10 @@ function ScaleBox({ children }: ScaleBoxProps) {
         if(w !== undefined && h !== undefined && widgetBox !== null) {
             w -=2;
             h -=2;
-            console.log(rect);
-            console.log(w, gridSnap)
-            console.log("KDJSFLDKS " + w%gridSnap)
-            console.log(w - (w % gridSnap));
+            // console.log(rect);
+            // console.log(w, gridSnap)
+            // console.log("KDJSFLDKS " + w%gridSnap)
+            // console.log(w - (w % gridSnap));
             let newW, newH;
             if(w%gridSnap !== 0) {
                 newW = w % gridSnap < gridSnap/2 ? w - (w % gridSnap) : w + (gridSnap - w % gridSnap);
@@ -231,8 +252,13 @@ function ScaleBox({ children }: ScaleBoxProps) {
 
         let newX = -1;
         let newY =-1;
+        let newW = -1;
+        let newH= -1;
+        
+        let childElement = thisBox.current;
+        let rect = childElement?.getBoundingClientRect();
 
-        if(dragging && scaleMode && thisBox.current) {
+        if(dragging && scaleMode && thisBox.current) { //dragging the box
             if(dragOffset.offX === -1 || dragOffset.offY === -1) {
                 return
             }
@@ -243,14 +269,13 @@ function ScaleBox({ children }: ScaleBoxProps) {
             newX = x;
             newY = y;
         }
-        else if ((resizingX > -1 || resizingY > -1) && scaleMode && thisBox.current !==null) {
-            let childElement = thisBox.current;
-            let rect = childElement?.getBoundingClientRect();
+        else if ((resizingX > -1 || resizingY > -1) && scaleMode && thisBox.current !==null) { //resize the box
             if(resizingX === 1) {
                 if(rect !==undefined && childElement!==null) { //right
                     if((mx - rect.left) < minDimensions.w) {}
                     else {
                         childElement.style.width = mx - rect.left + "px";
+                        newW = mx - rect.left;
                     }
                 }
             }
@@ -264,6 +289,7 @@ function ScaleBox({ children }: ScaleBoxProps) {
                     if((w-delta) < minDimensions.w) {}
                     else {
                         childElement.style.width = (w-delta) + "px";
+                        newW = w-delta;
                         thisBox.current.style.left = (leftN + delta) + "px";
                         newX = (leftN + delta);
                     }
@@ -275,6 +301,7 @@ function ScaleBox({ children }: ScaleBoxProps) {
                     if((my - rect.top) < minDimensions.h) {}
                     else {
                         childElement.style.height = my - rect.top + "px";
+                        newH = my - rect.top;
                     }
                 }
             }
@@ -289,16 +316,20 @@ function ScaleBox({ children }: ScaleBoxProps) {
                     else {
                         childElement.style.height = (h-delta) + "px";
                         thisBox.current.style.top = (topN + delta) + "px";
-                        newY = (topN + delta)                    
+                        newH = topN + delta;
+                        newY = topN + delta;                    
                     }
 
                 }
             }
         }
-        //if newx/y were never set, set it to last position
+        //if newx/y/w/h were never set, set it to last position
         if(newX < 0) newX = position.x;
         if(newY < 0) newY = position.y;
+        if(newW < 0) newW = dimensions.w;
+        if(newH < 0) newH = dimensions.h;
         setPosition({x:newX, y:newY});
+        setDimensions({w:newW, h:newH});
         checkBounds();
 
         //ensure mouseup is fired

@@ -2,11 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import './Timer.css';
 
 
-function Timer() {
+function Timer({dataHandler, data} : {dataHandler: Function, data:any}) {
     const [time, setTime] = useState(0);
     const [rate, setRate] = useState(10);
     const [isPaused, setIsPaused] = useState(true);
-      
+
     useInterval(() => {
         // Your custom logic here
         if(!isPaused) {

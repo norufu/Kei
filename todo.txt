@@ -14,3 +14,50 @@ widget ideas
 -pomodoro tree
 -stickynote
 -+-2 days
+
+
+//saving changes
+-set dimensions in scalebox
+-return data from Components
+
+
+
+
+
+//notes
+    x = [{
+        'type':'Everyday',
+        'posX': 50,
+        'posY': 50,
+        'w': 200,
+        'h': 400,
+        'data': {
+            'title': "Dailys",
+            'tasks' : [
+                {'task' : 'Japanese', 'value': 2},
+                {'task' : 'Chinese', 'value': 1},                
+                {'task' : 'Exercise', 'value': 0}
+            ]
+        }
+    }
+    ,{
+        'type':'Timer',
+        'posX': 50,
+        'posY': 500,
+        'w': 300,
+        'h': 150,
+        'data': {}  
+    }]
+
+
+Widget(type, posx, posy, w, h, data)
+
+    <scaleBox posX, posY>
+        <type w, h, data></type>
+    </scaleBox>
+
+Need to 
+    -update the data when changed
+    -reset daily values (time spent/completion)
+        -structure + data objects, data can be saved then wiped daily, structure doesn't changeCursor
+        -wiping specific values on creation if day has changed    
