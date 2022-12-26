@@ -165,7 +165,7 @@ function ScaleBox({ children }: ScaleBoxProps) {
 
         //drag
         if(isResizing === false) {
-            if(thisBox.current) thisBox.current.style.cursor = "grabbing";
+            // if(thisBox.current) thisBox.current.style.cursor = "grabbing";
 
             setDragging(true);
             changeDragOffset(e);
@@ -218,7 +218,10 @@ function ScaleBox({ children }: ScaleBoxProps) {
     }
 
     function move(e:any) {
-
+        if(!scaleMode) {
+            e.preventDefault();
+            return;
+        }
         let mx = e.clientX;
         let my = e.clientY;
 
@@ -347,7 +350,6 @@ function ScaleBox({ children }: ScaleBoxProps) {
     //grab, grabbing, nw-resize
     function changeCursor(e:any) {
         if(!thisBox.current || !scaleMode) return;
-        console.log(e);
         let mInArea = checkResizeEdges(e); //left/top are 0, right/bottom are 1
         if(mInArea.x === 1 && mInArea.y === 1) {
             //se-resize
@@ -388,6 +390,10 @@ function ScaleBox({ children }: ScaleBoxProps) {
     }
 
     function hideDragImage(e:any) {
+        if(!scaleMode){
+            e.preventDefault();
+            return;
+        }
         var img = document.createElement('img')
         img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
         e.dataTransfer.setDragImage(img, 0, 0)  
@@ -400,7 +406,7 @@ function ScaleBox({ children }: ScaleBoxProps) {
         onDragStart={hideDragImage} 
         onDrag={move} 
         onDragEnd={move} 
-        onMouseMove={changeCursor}
+        // onMouseMove={changeCursor}
         // onMouseLeave={changeCursor}
         className={'scaleBox' + editClass}>
             {children}
