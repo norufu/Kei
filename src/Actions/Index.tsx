@@ -5,13 +5,14 @@ export const toggleScale = () => {
 }
 
 
-export const addWidget = () => {
+export const addWidgetData = (data: any) => {
     return{
-        type: "ADD"
+        type: "ADD",
+        data: data
     };
 }
 
-export const removeWidget = () => {
+export const removeWidgetData = (data: any) => {
     return{
         type: "REMOVE"
     };

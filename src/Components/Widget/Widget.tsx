@@ -13,7 +13,7 @@ interface scaleBoxData {
   h: number;
 }
 
-function Widget({save, type, posX, posY, w, h, data} : {save:Function, type:string, posX:number, posY:number, w:number, h:number, data:any}) {
+function Widget({wid, save, type, posX, posY, w, h, data} : {wid: number, save:Function, type:string, posX:number, posY:number, w:number, h:number, data:any}) {
   const dispatch = useDispatch();
 
   const [comp, setComp] = useState<JSX.Element>();
@@ -21,16 +21,16 @@ function Widget({save, type, posX, posY, w, h, data} : {save:Function, type:stri
   const [widgetData, setWidgetData] = useState<any>(data);
 
   function getScaleBoxData(updateX : number, updateY: number, updateW:number, updateH: number) {
-    console.log(updateX, updateY, updateW, updateH);
     setScaleBoxData({posX: updateX, posY: updateY, w: updateW, h: updateH});
   }
 
   function getWidgetData(data: any) {
-    console.log(data)
     setWidgetData(data);
   }
+
   useEffect(() => {
     dispatch(updateWidget({ 
+        id: wid,
         type: type,
         posX: scaleBoxData.posX, 
         posY: scaleBoxData.posY,
@@ -42,7 +42,6 @@ function Widget({save, type, posX, posY, w, h, data} : {save:Function, type:stri
 
 
   useEffect(() => {
-      console.log(type);
       let newWidget;
       switch(type.toLowerCase()) {
           case "timer":

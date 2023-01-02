@@ -1,15 +1,24 @@
-const widgetReducer = (state = false, action: any) => {
+const widgetReducer = (state:any[] = [], action: any) => {
     switch(action.type) {
         case "ADD":
-            console.log(action);
-            return state;
+
+
+            // let newState = state;
+            // newState.push(action.data);
+            // return(newState);
+            return [...state, action.data]; 
         case "REMOVE":
             console.log(action);
             return state;
         case "UPDATE":
-            console.log("YYYYYYYYYY")
-            console.log(action);
-            return state;
+
+            let updated = [...state];
+            for(let i =0; i < updated.length; i++) {
+                if(updated[i].id == action.data.id) {
+                    updated[i] = action.data;
+                }
+            }
+            return updated;
         default:
             return state;
     }
