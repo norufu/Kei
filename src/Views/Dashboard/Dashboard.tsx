@@ -71,30 +71,20 @@ function Dashboard() {
     console.log(widgetData);
   }
 
+  //
   function saveToServer() {
-    axios.post('http://127.0.0.1:8000', 
-      {headers: {'X-CSRF-Token': token },
-      wd})
+    axios({
+      method: "POST",
+      url:"http://127.0.0.1:8000",
+      data:{
+        test: 1
+       },
+      headers: {
+        'X-CSRFToken': token
+      }})
     .then(function (response) {
       console.log(response);
     })
-    .catch(function (error) {
-      console.log(error);
-    });
-
-    const request = new Request(
-      'http://127.0.0.1:8000',
-      {
-          method: 'POST',
-          headers: ({'X-CSRFToken': token})
-          // mode: 'same-origin' // Do not send CSRF token to another domain.
-      }
-      );
-      fetch(request).then(function(response) {
-        // ...
-        console.log(response);
-      });
-
   }
 
   function getCookie(name : string) {
