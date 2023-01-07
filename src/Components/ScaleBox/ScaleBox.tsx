@@ -40,7 +40,6 @@ function ScaleBox({children, posX, posY, w, h, dataHandler }: ScaleBoxProps) {
     useEffect(()=> {
         if(thisBox.current) {
             let childElement =  thisBox.current.children[0] as HTMLElement | null;
-            // console.log(childElement?.style.minWidth);
             let rect = childElement?.getBoundingClientRect();
             if(rect) setMinDimensions({w:rect.width, h:rect.height})
 
@@ -163,6 +162,7 @@ function ScaleBox({children, posX, posY, w, h, dataHandler }: ScaleBoxProps) {
         // const x =  position.x % gridSnap <= gridSnap/2 ? position.x - position.x % gridSnap :  position.x + (gridSnap - position.x % gridSnap)
         // const y =  position.y % gridSnap <= gridSnap/2 ? position.y - position.y % gridSnap :  position.y + (gridSnap - position.y % gridSnap)
         // setPosition({x: x, y: y})
+        shrinkDiv();
         snapToGrid()
         setDragging(false);
         setResizing({x:-1, y:-1, spotClicked:""});
@@ -172,38 +172,6 @@ function ScaleBox({children, posX, posY, w, h, dataHandler }: ScaleBoxProps) {
         setMouseCords({x:-1, y:-1})
     }
 
-    function checkSize() { //scale is breaking this somehow
-        //fit width/height to grid
-        let widgetBox = thisBox.current?.children[0] as HTMLElement | null;
-        let rect = widgetBox?.getBoundingClientRect();
-        let w = rect?.width;
-        let h = rect?.height;
-        if(w !== undefined && h !== undefined && widgetBox !== null) {
-            w -=2;
-            h -=2;
-            // console.log(rect);
-            // console.log(w, gridSnap)
-            // console.log("KDJSFLDKS " + w%gridSnap)
-            // console.log(w - (w % gridSnap));
-            let newW, newH;
-            if(w%gridSnap !== 0) {
-                newW = w % gridSnap < gridSnap/2 ? w - (w % gridSnap) : w + (gridSnap - w % gridSnap);
-            }
-            else {
-                newW = w;
-            }
-            if(h%gridSnap !== 0) {
-                newH = h % gridSnap < gridSnap/2 ?  h - (h % gridSnap) : h + (gridSnap - h % gridSnap);
-            }
-            else {
-                newH = h;
-            }
-            widgetBox.style.width = newW + "px";
-            widgetBox.style.height = newH + "px";
-        }
-    }
-
-
     function move(e:any) {
         if(!scaleMode || !thisBox.current) {
             e.preventDefault();
@@ -212,7 +180,6 @@ function ScaleBox({children, posX, posY, w, h, dataHandler }: ScaleBoxProps) {
         let mx = e.clientX;
         let my = e.clientY;
 
-        // console.log(resizingX, resizingY)
         //ondrag at the end snaps it to 0,0 for a frame. not sure why
         if(mx === 0 && my === 0)
         return;
@@ -232,9 +199,7 @@ function ScaleBox({children, posX, posY, w, h, dataHandler }: ScaleBoxProps) {
         }
         else if ((resizing.x > -1 || resizing.y > -1) && scaleMode) {
             let childElement = thisBox.current;
-            console.log(thisBox.current)
             let rect = childElement?.getBoundingClientRect();
-            console.log('resizing')
             if(resizing.spotClicked === 'right') { //right
                 newW = mx - rect.left;
                 let delta = newW - rect.width + borderW;
@@ -289,27 +254,28 @@ function ScaleBox({children, posX, posY, w, h, dataHandler }: ScaleBoxProps) {
             }
         }
 
-        //ensure bigger than mininum
-        if(newW < minDimensions.w || newH < minDimensions.h) {newW = minDimensions.w; newH = minDimensions.h;}
+        //ensure bigger than mininum, if not limit size & don't move it
+        if(newW > 0 && newW < minDimensions.w) {newW = minDimensions.w; newX = -1; newY = -1;}
+        if(newH > 0 && newH < minDimensions.h) {newH = minDimensions.h; newY = -1; newX = -1;}
+        //dimensions update
+        if(newW > 0) thisBox.current.style.width = newW + "px";
+        if(newH > 0) thisBox.current.style.height = newH + "px";
         //position update
         if(newX > 0) thisBox.current.style.left = newX + "px";
         else newX = position.x;
         if(newY > 0) thisBox.current.style.top = newY + "px";
         else newY = position.y;
-        //dimensions update
-        if(newW > 0) thisBox.current.style.width = newW + "px";
-        if(newH > 0) thisBox.current.style.height = newH + "px";
+
         //Update states
         setPosition({x:newX, y:newY});
         setDimensions({w: newW, h:newH})
-        
-
 
         //scale component
         checkBounds();
 
         //ensure mouseup is fired
         if(e._reactName === "onDragEnd") {
+            shrinkDiv();
             snapToGrid();
             mouseUp();
         }
@@ -346,10 +312,32 @@ function ScaleBox({children, posX, posY, w, h, dataHandler }: ScaleBoxProps) {
 
         }
     }
+ 
+    function shrinkDiv() { //shrinks the scalebox to match the inner widget size
+        if(thisBox.current === null) return;
+        let widgetRect = thisBox.current.children[0].getBoundingClientRect();
+        const edgeSize = 5; //how far from the widget the scalebox div protrudes to help with clicking to resize
+        
+        //shrink position to snap to where the widget is
+        let shrunkX = Math.ceil(widgetRect.left)
+        let shrunkY = Math.ceil(widgetRect.top)
+        thisBox.current.style.left = shrunkX + "px";
+        thisBox.current.style.top = shrunkY + "px";
+        setPosition({x:shrunkX, y:shrunkY});
+        //shrink dimensions 
+        let shrunkW =  Math.ceil(widgetRect.height) + edgeSize;
+        let shrunkH = Math.ceil(widgetRect.width) + edgeSize;
+        thisBox.current.style.height = shrunkW + "px";
+        thisBox.current.style.width = shrunkH + "px";
+        setDimensions({w: shrunkW, h: shrunkH});
+    }
 
     function snapToGrid() {
-        const x =  position.x % gridSnap <= gridSnap/2 ? position.x - position.x % gridSnap :  position.x + (gridSnap - position.x % gridSnap)
-        const y =  position.y % gridSnap <= gridSnap/2 ? position.y - position.y % gridSnap :  position.y + (gridSnap - position.y % gridSnap)
+        if(thisBox.current === null) return;
+
+        let boxRect = thisBox.current.getBoundingClientRect();
+        const x =  boxRect.left % gridSnap <= gridSnap/2 ? boxRect.left - boxRect.left % gridSnap :  boxRect.left + (gridSnap - boxRect.left % gridSnap)
+        const y =  boxRect.top % gridSnap <= gridSnap/2 ? boxRect.top - boxRect.top % gridSnap :  boxRect.top + (gridSnap - boxRect.top % gridSnap)
 
         setPosition({x: x, y: y})
     }
@@ -410,72 +398,6 @@ function ScaleBox({children, posX, posY, w, h, dataHandler }: ScaleBoxProps) {
         img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
         e.dataTransfer.setDragImage(img, 0, 0)  
     }
-
-
-
-    function resize(e: any) {
-        if(scaleMode && thisBox.current) {
-            e.preventDefault();
-            let dir = e.nativeEvent.wheelDelta > 0 ? 1 : 0;
-            let box = e.currentTarget;
-            // let childElement =  thisBox.current.children[0] as HTMLElement | null;
-            // let rect = childElement?.getBoundingClientRect();
-            if(dir === 1) {
-                box.style="transform: scale(" + (scaleX + 0.1) + ")";
-                // box.style.left = position.x + "px";
-                // box.style.top = position.y + "px";
-                if(scaleX + 0.1 <= 2.5) { //cap size
-                    setScaleX(scaleX => scaleX + 0.1)
-                }
-            }
-            else {
-                box.style="transform: scale(" + (scaleX - 0.1) + ")";
-                // box.style.left = position.x + "px";
-                // box.style.top = position.y + "px";
-                if(scaleX - 0.1 >= 0.2) { //cap size
-                    setScaleX(scaleX => scaleX - 0.1)  
-                }
-            }
-
-
-            if(thisBox.current) {
-                let childElement =  thisBox.current.children[0] as HTMLElement | null;
-                let rect = childElement?.getBoundingClientRect();
-                // console.log(box);
-                if(childElement && rect)  {
-                    childElement.style.width = rect.width + "px";
-                    childElement.style.height = rect.height + "px";
-                    // console.log(childElement.style.width, childElement.style.height);
-                }
-
-            }
-        }
-    }
-    // function resize(e: any) {
-    //     const resizeValue = 20;
-    //     console.log("YUP")
-    //     if(scaleMode) {
-    //         let dir = e.nativeEvent.wheelDelta > 0 ? 1 : 0;
-    //         let box = e.currentTarget;
-
-    //         if(thisBox.current) {
-    //             let childElement =  thisBox.current.children[0] as HTMLElement | null;
-    //             let rect = childElement?.getBoundingClientRect();
-    //             let w = rect?.width;
-    //             let h = rect?.height;
-    //             if(dir === 1 && w && h) {
-    //                 thisBox.current.style.width = (w + resizeValue) + "px";
-    //                 thisBox.current.style.height = (h + resizeValue) + "px";
-    //             }
-    //             else if(w && h) {
-    //                 thisBox.current.style.width = (w - resizeValue) + "px";
-    //                 thisBox.current.style.height = (h - resizeValue) + "px";
-    //             }
-    //         }
-    //     }
-    // }
-
-
 
     return (
         <div ref={thisBox} 
