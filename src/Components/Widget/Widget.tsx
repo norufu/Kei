@@ -20,14 +20,38 @@ function Widget({wid, save, type, posX, posY, w, h, data} : {wid: number, save:F
   const [scaleBoxData, setScaleBoxData] = useState<scaleBoxData>({posX: posX, posY: posY, w: w, h: h});
   const [widgetData, setWidgetData] = useState<any>(data);
 
-  function getScaleBoxData(updateX : number, updateY: number, updateW:number, updateH: number) {
-    setScaleBoxData({posX: updateX, posY: updateY, w: updateW, h: updateH});
-  }
+  useEffect(() => {
+    let newWidget;
+    switch(type.toLowerCase()) {
+        case "timer":
+          newWidget = <Timer dataHandler={getWidgetData} data={data}/>
 
-  function getWidgetData(data: any) {
-    setWidgetData(data);
-  }
+          //set default values if not set
+          if(scaleBoxData.w == 0 || scaleBoxData.h == 0) {
+            console.log("!")
+            w = 300;
+            h = 100;
+          }
+          break;
+        case "everyday":
+          newWidget = <Everyday dataHandler={getWidgetData} data={data}/>
+          break;
+        default:
+          newWidget = null;
+          break;
+    }
+    if(newWidget!=null)
+        setComp(newWidget);
 
+}, []);
+
+function getScaleBoxData(updateX : number, updateY: number, updateW:number, updateH: number) {
+  setScaleBoxData({posX: updateX, posY: updateY, w: updateW, h: updateH});
+}
+
+function getWidgetData(data: any) {
+  setWidgetData(data);
+}
   useEffect(() => {
     dispatch(updateWidget({ 
         id: wid,
@@ -41,23 +65,6 @@ function Widget({wid, save, type, posX, posY, w, h, data} : {wid: number, save:F
   }, [scaleBoxData, widgetData]);
 
 
-  useEffect(() => {
-      let newWidget;
-      switch(type.toLowerCase()) {
-          case "timer":
-            newWidget = <Timer dataHandler={getWidgetData} data={data}/>
-            break;
-          case "everyday":
-            newWidget = <Everyday dataHandler={getWidgetData} data={data}/>
-            break;
-          default:
-            newWidget = null;
-            break;
-      }
-      if(newWidget!=null)
-          setComp(newWidget);
-
-  }, []);
   
 
 

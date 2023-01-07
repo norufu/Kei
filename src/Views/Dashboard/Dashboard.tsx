@@ -35,8 +35,6 @@ function Dashboard() {
       console.log(response.data.token);
       setServerData(response.data.data);
       setToken(response.data.token);
-      console.log(response.data.token)
-      console.log(getCookie(response.data.token))
     })
 
     document.addEventListener("keydown", keyPress);
@@ -66,19 +64,17 @@ function Dashboard() {
 
 
   //save board state
-
   const dataCallback = (widgetData : {}) =>{
     console.log(widgetData);
   }
 
   //
   function saveToServer() {
+    console.log(wd);
     axios({
       method: "POST",
       url:"http://127.0.0.1:8000",
-      data:{
-        test: 1
-       },
+      data: wd,
       headers: {
         'X-CSRFToken': token
       }})
@@ -86,24 +82,6 @@ function Dashboard() {
       console.log(response);
     })
   }
-
-  function getCookie(name : string) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-  }
-
-const csrftoken = getCookie('csrftoken');
   
   //show/hide grid
   useEffect(() => {
@@ -133,7 +111,24 @@ const csrftoken = getCookie('csrftoken');
 // 
   function menuAddWidget(e:any) {
     console.log(e.currentTarget.id)
-    addWidget(-1, e.currentTarget.id, 0, 0, 0, 0, {});
+    let w = 0;
+    let h = 0;
+
+    //set default w/h values
+    switch(e.currentTarget.id.toLowerCase()) {
+      case "timer":
+        w=300;
+        h=83;
+        break;
+      case "everyday":
+        w=200;
+        h=50;
+        break;
+      default:
+        break;
+    }
+    console.log(w, h)
+    addWidget(-1, e.currentTarget.id, 0, 0, w, h, {});
   }
 
   function addWidget(id:number, type:string, posX:number, posY:number, w:number, h:number, data:any) {
@@ -167,7 +162,6 @@ const csrftoken = getCookie('csrftoken');
   return (
     <div className={"dashboard " + gridClass}>
         {showMenu && <DropdownMenu options={[{text:"Timer", handler:menuAddWidget}, {text:"Everyday", handler:menuAddWidget}]} cords={menuCords} closeHandler={closeHandler}/>}
-
         {widgets}
         <button onClick={saveToServer}>Save Test</button>
     </div>
