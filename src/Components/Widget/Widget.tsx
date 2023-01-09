@@ -11,30 +11,35 @@ interface scaleBoxData {
   posY: number;
   w: number;
   h: number;
+  scaleX: number;
+  scaleY: number;
 }
 
-function Widget({wid, save, type, posX, posY, w, h, data} : {wid: number, save:Function, type:string, posX:number, posY:number, w:number, h:number, data:any}) {
+function Widget({wid, save, type, posX, posY, w, h, scaleX, scaleY, data} : {wid: number, save:Function, type:string, posX:number, posY:number, w:number, h:number, scaleX:number, scaleY:number, data:any}) {
   const dispatch = useDispatch();
 
   const [comp, setComp] = useState<JSX.Element>();
-  const [scaleBoxData, setScaleBoxData] = useState<scaleBoxData>({posX: posX, posY: posY, w: w, h: h});
+  const [scaleBoxData, setScaleBoxData] = useState<scaleBoxData>({posX: posX, posY: posY, w: w, h: h, scaleX: scaleX, scaleY: scaleY});
   const [widgetData, setWidgetData] = useState<any>(data);
+  const [minDimensions, setMinDimensions] = useState<{w:number,h:number}>({w:-1, h:-1});
 
   useEffect(() => {
     let newWidget;
     switch(type.toLowerCase()) {
         case "timer":
           newWidget = <Timer dataHandler={getWidgetData} data={data}/>
+          setMinDimensions({w:300, h:80});
 
           //set default values if not set
           if(scaleBoxData.w == 0 || scaleBoxData.h == 0) {
-            console.log("!")
+
             w = 300;
-            h = 100;
+            h = 80;
           }
           break;
         case "everyday":
           newWidget = <Everyday dataHandler={getWidgetData} data={data}/>
+          setMinDimensions({w:200, h:200});
           break;
         default:
           newWidget = null;
@@ -45,8 +50,8 @@ function Widget({wid, save, type, posX, posY, w, h, data} : {wid: number, save:F
 
 }, []);
 
-function getScaleBoxData(updateX : number, updateY: number, updateW:number, updateH: number) {
-  setScaleBoxData({posX: updateX, posY: updateY, w: updateW, h: updateH});
+function getScaleBoxData(updateX : number, updateY: number, updateW:number, updateH: number, scaleX: number, scaleY: number) {
+  setScaleBoxData({posX: updateX, posY: updateY, w: updateW, h: updateH, scaleX: scaleX, scaleY: scaleY});
 }
 
 function getWidgetData(data: any) {
@@ -60,6 +65,8 @@ function getWidgetData(data: any) {
         posY: scaleBoxData.posY,
         w: scaleBoxData.w,
         h: scaleBoxData.h,
+        scaleX: scaleBoxData.scaleX,
+        scaleY: scaleBoxData.scaleY,
         data: widgetData
     }));
   }, [scaleBoxData, widgetData]);
@@ -69,7 +76,7 @@ function getWidgetData(data: any) {
 
 
   return (
-      <>{comp ? <ScaleBox dataHandler={getScaleBoxData} w={w} h={h} posX={posX} posY={posY} children={comp}></ScaleBox> : <></> }</>
+      <>{comp ? <ScaleBox dataHandler={getScaleBoxData} w={w} h={h} posX={posX} posY={posY} scaleX={scaleX} scaleY={scaleY} minD={minDimensions} children={comp}></ScaleBox> : <></> }</>
       
   );
 }

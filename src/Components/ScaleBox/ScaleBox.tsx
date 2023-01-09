@@ -9,10 +9,13 @@ interface ScaleBoxProps {
     posY: number;
     w: number;
     h: number;
+    scaleX: number;
+    scaleY: number;
+    minD: {w:number, h:number};
     dataHandler: Function; //updates the widget on positioning
 }
 
-function ScaleBox({children, posX, posY, w, h, dataHandler }: ScaleBoxProps) {
+function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler }: ScaleBoxProps) {
     const thisBox = useRef<HTMLDivElement>(null);
 
     const scaleMode = useSelector((state: RootState) => state.scaleMode);
@@ -26,13 +29,13 @@ function ScaleBox({children, posX, posY, w, h, dataHandler }: ScaleBoxProps) {
     // const [resizingY, setResizingY] = useState(-1);
     
     const [mouseCords, setMouseCords] = useState({x:-1, y:-1});
-    const [minDimensions, setMinDimensions] = useState({w:1, h:1})
+    const [minDimensions, setMinDimensions] = useState(minD)
     const [dragOffset, setDragOffset] = useState({offX:-1, offY:-1});
 
     const [editClass, setEditClass] = useState("");
 
-    const [scaleX, setScaleX] = useState(1);
-    const [scaleY, setScaleY] = useState(1);
+    const [widgScaleX, setWidgScaleX] = useState(1);
+    const [widgScaleY, setWidgScaleY] = useState(1);
 
     const [position, setPosition] = useState({x: 0, y: 0});
     const [dimensions, setDimensions] = useState({w: 0, h: 0});
@@ -40,12 +43,18 @@ function ScaleBox({children, posX, posY, w, h, dataHandler }: ScaleBoxProps) {
     useEffect(()=> {
         if(thisBox.current) {
             let childElement =  thisBox.current.children[0] as HTMLElement | null;
-            let rect = childElement?.getBoundingClientRect();
-            if(rect) setMinDimensions({w:rect.width, h:rect.height})
 
+            thisBox.current.style.width = w + "px";
+            thisBox.current.style.height = h + "px";
+            if(childElement)  {
+                childElement.style.width = minDimensions.w + "px";
+                childElement.style.height = minDimensions.h + "px";
+            }
+            
             //set initial position and size on load
             setPosition({x: posX, y: posY});
             setDimensions({w: w, h: h})
+            checkBounds()
         }
     }, []);
 
@@ -70,20 +79,21 @@ function ScaleBox({children, posX, posY, w, h, dataHandler }: ScaleBoxProps) {
             thisBox.current.style.top = position.y + "px";
         }
         //update widget component on position
-        dataHandler(position.x, position.y, dimensions.w, dimensions.h);
+        dataHandler(position.x, position.y, dimensions.w, dimensions.h, widgScaleX, widgScaleY);
     },[position]);
 
     useEffect(()=> {
         //update dimensions of the child component
         if(thisBox.current) {
             let childElement =  thisBox.current.children[0] as HTMLElement | null;
-            if(childElement)  {
-                childElement.style.width = w + "px";
-                childElement.style.height = h + "px";
-            }
+            // if(childElement)  {
+            //     console.log("YUUUP", dimensions.w, dimensions.h )
+            //     childElement.style.width = w + "px";
+            //     childElement.style.height = h + "px";
+            // }
         }
         //update widget component on position and dimensions
-        dataHandler(position.x, position.y, dimensions.w, dimensions.h);
+        dataHandler(position.x, position.y, dimensions.w, dimensions.h, widgScaleX, widgScaleY);
     },[dimensions]);
 
 
@@ -271,7 +281,10 @@ function ScaleBox({children, posX, posY, w, h, dataHandler }: ScaleBoxProps) {
         setDimensions({w: newW, h:newH})
 
         //scale component
-        checkBounds();
+        if(!dragging){
+            console.log("usd")
+            checkBounds();
+        }
 
         //ensure mouseup is fired
         if(e._reactName === "onDragEnd") {
@@ -282,7 +295,7 @@ function ScaleBox({children, posX, posY, w, h, dataHandler }: ScaleBoxProps) {
     }
 
     function checkBounds() {
-        //
+        //As the border gets bigger, make the widget expand to fit the boundary
         if(thisBox.current) {
             let ele = thisBox.current.children[0] as HTMLElement | null;
             if(!ele) return;
@@ -290,26 +303,28 @@ function ScaleBox({children, posX, posY, w, h, dataHandler }: ScaleBoxProps) {
             let eleW = ele.getBoundingClientRect().width;
             let boxH = thisBox.current.getBoundingClientRect().height;
             let eleH = ele.getBoundingClientRect().height;
+            console.log(minDimensions)
 
-            if(scaleX == 1 && scaleY == 1) { //set default dimensions to avoid under scaling
-                setMinDimensions({w:eleW, h:eleH});
-            }
+            // if(scaleX == 1 && scaleY == 1) { //set default dimensions to avoid under scaling
+            //     setMinDimensions({w:eleW, h:eleH});
+            //     // console.log(eleW, eleH)
+            // }
 
             let scaleValueX = (boxW-2)/eleW - 1;
-            scaleValueX = scaleX + scaleValueX;
+            scaleValueX = widgScaleX + scaleValueX;
 
             let scaleValueY = (boxH-2)/eleH - 1;
-            scaleValueY = scaleY + scaleValueY;
+            scaleValueY = widgScaleY + scaleValueY;
 
             //ensure ratio, if scaling too big cap it 
             let lowerScale = scaleValueX < scaleValueY ? scaleValueX : scaleValueY;
             lowerScale = lowerScale >= 2 ? 2 : lowerScale; 
 
-            setScaleX(lowerScale)
-            setScaleY(lowerScale)
-
+            //update scale values
+            setWidgScaleX(lowerScale)
+            setWidgScaleY(lowerScale)
+            console.log(minDimensions)
             ele.style.transform = "scale(" + lowerScale + "," + lowerScale +")";
-
         }
     }
  
@@ -325,10 +340,10 @@ function ScaleBox({children, posX, posY, w, h, dataHandler }: ScaleBoxProps) {
         thisBox.current.style.top = shrunkY + "px";
         setPosition({x:shrunkX, y:shrunkY});
         //shrink dimensions 
-        let shrunkW =  Math.ceil(widgetRect.height) + edgeSize;
-        let shrunkH = Math.ceil(widgetRect.width) + edgeSize;
-        thisBox.current.style.height = shrunkW + "px";
-        thisBox.current.style.width = shrunkH + "px";
+        let shrunkW =  Math.ceil(widgetRect.width) + edgeSize;
+        let shrunkH = Math.ceil(widgetRect.height) + edgeSize;
+        thisBox.current.style.width = shrunkW + "px";
+        thisBox.current.style.height = shrunkH + "px";
         setDimensions({w: shrunkW, h: shrunkH});
     }
 

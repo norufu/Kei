@@ -51,7 +51,7 @@ function Dashboard() {
 
       for(let i = 0; i < serverData.length; i++) {
         console.log(serverData[i])
-        addWidget(i, serverData[i].type, serverData[i].posX, serverData[i].posY, serverData[i].w, serverData[i].h, serverData[i].data)
+        addWidget(i, serverData[i].type, serverData[i].posX, serverData[i].posY, serverData[i].w, serverData[i].h, serverData[i].scaleX, serverData[i].scaleY, serverData[i].data)
       }
 
     }
@@ -76,7 +76,7 @@ function Dashboard() {
       url:"http://127.0.0.1:8000",
       data: wd,
       headers: {
-        'X-CSRFToken': token
+        'X-CSRF-Token': token
       }})
     .then(function (response) {
       console.log(response);
@@ -128,13 +128,13 @@ function Dashboard() {
         break;
     }
     console.log(w, h)
-    addWidget(-1, e.currentTarget.id, 0, 0, w, h, {});
+    addWidget(-1, e.currentTarget.id, 0, 0, w, h, 1, 1, {});
   }
 
-  function addWidget(id:number, type:string, posX:number, posY:number, w:number, h:number, data:any) {
+  function addWidget(id:number, type:string, posX:number, posY:number, w:number, h:number, scaleX:number, scaleY: number, data:any) {
 
     if(id < 0) id=widgets.length;
-    let newWidget = <Widget key={id} wid={id} save={dataCallback} type={type} posX={posX} posY={posY} w={w} h={h} data={data} ></Widget>;
+    let newWidget = <Widget key={id} wid={id} save={dataCallback} type={type} posX={posX} posY={posY} w={w} h={h} scaleX={scaleX} scaleY={scaleY} data={data} ></Widget>;
 
     setWidgets(oldData => {
       if(oldData.length !== 0) {
