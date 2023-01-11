@@ -21,6 +21,7 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
     const scaleMode = useSelector((state: RootState) => state.scaleMode);
     const [gridSnap, setGridSnap] = useState(20);
     const [borderW, setBorderW] = useState(2);
+    const [edgeSize, setEdgeSize] = useState(6);         //how far from the widget the scalebox div protrudes to help with clicking to resize
     const [resizeBuffer, setResizeBuffer] = useState(20);
     const [dragging, setDragging] = useState(false);
     const [resizing, setResizing] = useState({x:-1, y:-1, spotClicked:""});
@@ -50,11 +51,11 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
                 childElement.style.width = minDimensions.w + "px";
                 childElement.style.height = minDimensions.h + "px";
             }
-            
             //set initial position and size on load
             setPosition({x: posX, y: posY});
             setDimensions({w: w, h: h})
-            checkBounds()
+            checkBounds();
+            addInitialEdge();
         }
     }, []);
 
@@ -65,8 +66,6 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
             setEditClass("")
             setDragging(false);
             setResizing({x:-1, y:-1, spotClicked:""})
-            // setResizingX(-1);
-            // setResizingY(-1);
             setDragOffset({offX:-1, offY:-1});
         }
 
@@ -83,16 +82,6 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
     },[position]);
 
     useEffect(()=> {
-        //update dimensions of the child component
-        if(thisBox.current) {
-            let childElement =  thisBox.current.children[0] as HTMLElement | null;
-            // if(childElement)  {
-            //     console.log("YUUUP", dimensions.w, dimensions.h )
-            //     childElement.style.width = w + "px";
-            //     childElement.style.height = h + "px";
-            // }
-        }
-        //update widget component on position and dimensions
         dataHandler(position.x, position.y, dimensions.w, dimensions.h, widgScaleX, widgScaleY);
     },[dimensions]);
 
@@ -159,7 +148,6 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
         let mInArea = checkResizeEdges(e); //left/top are 0, right/bottom are 1
 
         if(mInArea.x >= 0 || mInArea.y >=0) {setResizing(mInArea); isResizing=true;}
-        // if(mInArea.y >= 0) {setResizingY(mInArea); isResizing=true;}
 
         //drag
         if(isResizing === false) {
@@ -171,13 +159,10 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
         //snap to grid on release, < 10 snap left/up >10 snap right/down
         // const x =  position.x % gridSnap <= gridSnap/2 ? position.x - position.x % gridSnap :  position.x + (gridSnap - position.x % gridSnap)
         // const y =  position.y % gridSnap <= gridSnap/2 ? position.y - position.y % gridSnap :  position.y + (gridSnap - position.y % gridSnap)
-        // setPosition({x: x, y: y})
         shrinkDiv();
         snapToGrid()
         setDragging(false);
         setResizing({x:-1, y:-1, spotClicked:""});
-        // setResizingX(-1)
-        // setResizingY(-1)
         setDragOffset({offX:-1, offY:-1});
         setMouseCords({x:-1, y:-1})
     }
@@ -331,7 +316,6 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
     function shrinkDiv() { //shrinks the scalebox to match the inner widget size
         if(thisBox.current === null) return;
         let widgetRect = thisBox.current.children[0].getBoundingClientRect();
-        const edgeSize = 5; //how far from the widget the scalebox div protrudes to help with clicking to resize
         
         //shrink position to snap to where the widget is
         let shrunkX = Math.ceil(widgetRect.left)
@@ -345,6 +329,12 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
         thisBox.current.style.width = shrunkW + "px";
         thisBox.current.style.height = shrunkH + "px";
         setDimensions({w: shrunkW, h: shrunkH});
+    }
+ 
+    function addInitialEdge() { //used when loading scalebox for first time to add edge buffer
+        if(thisBox.current === null) return;
+        thisBox.current.style.width = (parseInt(thisBox.current.style.width.slice(0,-1)) + edgeSize) + "px";
+        thisBox.current.style.height =  (parseInt(thisBox.current.style.height.slice(0,-1)) + edgeSize) + "px";
     }
 
     function snapToGrid() {
