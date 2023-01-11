@@ -175,9 +175,10 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
         let mx = e.clientX;
         let my = e.clientY;
 
-        //ondrag at the end snaps it to 0,0 for a frame. not sure why
-        if(mx === 0 && my === 0)
-        return;
+        //mouse offscreen
+        if(mx < 0 || my < 0 || mx === 0 || my === 0) 
+            return;
+
         let newX = -1;
         let newY =-1;
         let newW = -1;
@@ -202,6 +203,7 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
                 if(resizing.y === 0) { //right-top
                     newH = rect.height-borderW + delta; //change height
                     newY = rect.top - delta; //change ypos so it scales up not down
+                    console.log(newW, newH)
                 }
                 else { //right-bottom
                     newH = rect.height-borderW + delta;
@@ -248,28 +250,33 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
                 }
             }
         }
-
-        //ensure bigger than mininum, if not limit size & don't move it
-        if(newW > 0 && newW < minDimensions.w) {newW = minDimensions.w; newX = -1; newY = -1;}
-        if(newH > 0 && newH < minDimensions.h) {newH = minDimensions.h; newY = -1; newX = -1;}
-        //dimensions update
-        if(newW > 0) thisBox.current.style.width = newW + "px";
-        if(newH > 0) thisBox.current.style.height = newH + "px";
-        //position update
-        if(newX > 0) thisBox.current.style.left = newX + "px";
-        else newX = position.x;
-        if(newY > 0) thisBox.current.style.top = newY + "px";
-        else newY = position.y;
-
-        //Update states
-        setPosition({x:newX, y:newY});
-        setDimensions({w: newW, h:newH})
-
         //scale component
         if(!dragging){
-            console.log("usd")
+            //ensure bigger than mininum, if not limit size & don't move it
+            if(newW < 0 || newW < minDimensions.w) {newW = minDimensions.w; newX = -1; newY = -1;}
+            if(newH < 0 || newH < minDimensions.h) {newH = minDimensions.h; newY = -1; newX = -1;}
+            //dimensions update
+            if(newW > 0) thisBox.current.style.width = newW + "px";
+            if(newH > 0) thisBox.current.style.height = newH + "px";
+            //position update
+            if(newX > 0) thisBox.current.style.left = newX + "px";
+            else newX = position.x;
+            if(newY > 0) {thisBox.current.style.top = newY + "px";console.log("yuh")}
+            else newY = parseInt(thisBox.current.style.top.slice(0,-1));
+
+            //Update states
+            setPosition({x:newX, y:newY});
+            setDimensions({w: newW, h:newH})
+            //adjust scale
             checkBounds();
         }
+        else { //drag compnoent
+            if(newX > 0) thisBox.current.style.left = newX + "px";
+            else newX = position.x;
+            if(newY > 0) thisBox.current.style.top = newY + "px";
+            else newY = parseInt(thisBox.current.style.top.slice(0,-1));
+        }
+
 
         //ensure mouseup is fired
         if(e._reactName === "onDragEnd") {
@@ -288,7 +295,6 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
             let eleW = ele.getBoundingClientRect().width;
             let boxH = thisBox.current.getBoundingClientRect().height;
             let eleH = ele.getBoundingClientRect().height;
-            console.log(minDimensions)
 
             // if(scaleX == 1 && scaleY == 1) { //set default dimensions to avoid under scaling
             //     setMinDimensions({w:eleW, h:eleH});
@@ -308,7 +314,6 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
             //update scale values
             setWidgScaleX(lowerScale)
             setWidgScaleY(lowerScale)
-            console.log(minDimensions)
             ele.style.transform = "scale(" + lowerScale + "," + lowerScale +")";
         }
     }
