@@ -1,14 +1,11 @@
 MVP
 -authentication
--save state/data
 -handful of widgets
 
 scalebox
 -zooming in makes the divs have decimal places, messing up the scaling
 -mouse offset on the resize
--remove snap delay/snap width&height
 -input objects block the drag
--hover over mouse icons
 -remove globe/default cursor
 
 widget ideas

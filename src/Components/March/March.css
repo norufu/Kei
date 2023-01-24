@@ -1,0 +1,19 @@
+.march h1 {
+    color:rgb(94, 207, 94);
+    padding-left:10px;
+    padding-right:10px
+}
+
+.march{
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* background-color: rgb(177, 177, 177); */
+    border: solid 2px white;
+    border-radius: 0.5;
+}
+
+input {
+    text-align: center;
+}

@@ -11,6 +11,7 @@ import { RootState } from '../..';
 import axios from 'axios'; 
 import internal from 'stream';
 import Widget from '../../Components/Widget/Widget';
+import March from '../../Components/March/March';
 
 
 function Dashboard() {
@@ -164,6 +165,7 @@ function Dashboard() {
         {showMenu && <DropdownMenu options={[{text:"Timer", handler:menuAddWidget}, {text:"Everyday", handler:menuAddWidget}]} cords={menuCords} closeHandler={closeHandler}/>}
         {widgets}
         <button onClick={saveToServer}>Save Test</button>
+        <March data={{}}></March>
     </div>
   );
 }
