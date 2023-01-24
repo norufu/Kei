@@ -125,6 +125,10 @@ function Dashboard() {
         w=200;
         h=50;
         break;
+      case "march":
+        w=230;
+        h=185;
+        break;
       default:
         break;
     }
@@ -162,10 +166,10 @@ function Dashboard() {
 
   return (
     <div className={"dashboard " + gridClass}>
-        {showMenu && <DropdownMenu options={[{text:"Timer", handler:menuAddWidget}, {text:"Everyday", handler:menuAddWidget}]} cords={menuCords} closeHandler={closeHandler}/>}
+        {showMenu && <DropdownMenu options={[{text:"Timer", handler:menuAddWidget}, {text:"Everyday", handler:menuAddWidget}, {text:"March", handler:menuAddWidget}]} cords={menuCords} closeHandler={closeHandler}/>}
         {widgets}
         <button onClick={saveToServer}>Save Test</button>
-        <March data={{}}></March>
+        {/* <March data={{}}></March> */}
     </div>
   );
 }

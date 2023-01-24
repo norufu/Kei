@@ -3,7 +3,7 @@ import './March.css';
 
 
 //[{date: __, hours: __}, {}]
-function March({data} : {data:any}) {
+function March({data, dataHandler} : {data:any, dataHandler:Function}) {
   const thisDiv = useRef<HTMLDivElement>(null);
 
   const [marchAverage, setMarchAverage] = useState(0.5);
