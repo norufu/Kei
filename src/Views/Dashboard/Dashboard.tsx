@@ -12,6 +12,7 @@ import axios from 'axios';
 import internal from 'stream';
 import Widget from '../../Components/Widget/Widget';
 import March from '../../Components/March/March';
+import Paint from '../../Components/Paint/Paint';
 
 
 function Dashboard() {
@@ -129,6 +130,10 @@ function Dashboard() {
         w=230;
         h=185;
         break;
+      case "paint":
+        w=200;
+        h=200;
+        break;
       default:
         break;
     }
@@ -166,10 +171,10 @@ function Dashboard() {
 
   return (
     <div className={"dashboard " + gridClass}>
-        {showMenu && <DropdownMenu options={[{text:"Timer", handler:menuAddWidget}, {text:"Everyday", handler:menuAddWidget}, {text:"March", handler:menuAddWidget}]} cords={menuCords} closeHandler={closeHandler}/>}
+        {showMenu && <DropdownMenu options={[{text:"Timer", handler:menuAddWidget}, {text:"Everyday", handler:menuAddWidget}, {text:"March", handler:menuAddWidget}, {text:"Paint", handler:menuAddWidget}]} cords={menuCords} closeHandler={closeHandler}/>}
         {widgets}
         <button onClick={saveToServer}>Save Test</button>
-        {/* <March data={{}}></March> */}
+        {/* <Paint data={{}}></Paint> */}
     </div>
   );
 }

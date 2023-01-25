@@ -203,7 +203,6 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
                 if(resizing.y === 0) { //right-top
                     newH = rect.height-borderW + delta; //change height
                     newY = rect.top - delta; //change ypos so it scales up not down
-                    console.log(newW, newH)
                 }
                 else { //right-bottom
                     newH = rect.height-borderW + delta;
@@ -261,7 +260,7 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
             //position update
             if(newX > 0) thisBox.current.style.left = newX + "px";
             else newX = position.x;
-            if(newY > 0) {thisBox.current.style.top = newY + "px";console.log("yuh")}
+            if(newY > 0) {thisBox.current.style.top = newY + "px";}
             else newY = parseInt(thisBox.current.style.top.slice(0,-1));
 
             //Update states

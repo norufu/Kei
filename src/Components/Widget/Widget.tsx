@@ -6,6 +6,7 @@ import './Widget.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateWidget } from '../../Actions/Index';
 import March from '../March/March';
+import Paint from '../Paint/Paint';
 
 interface scaleBoxData {
   posX: number;
@@ -45,6 +46,10 @@ function Widget({wid, save, type, posX, posY, w, h, scaleX, scaleY, data} : {wid
         case "march":
           newWidget = <March dataHandler={getWidgetData} data={data}/>
           setMinDimensions({w:230, h:185});
+          break;
+        case "paint":
+          newWidget = <Paint dataHandler={getWidgetData} data={data}/>
+          setMinDimensions({w:200, h:200});
           break;
         default:
           newWidget = null;
