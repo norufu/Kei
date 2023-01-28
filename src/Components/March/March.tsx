@@ -2,49 +2,32 @@ import React, { useEffect, useRef, useState } from 'react';
 import './March.css';
 
 
-//[{date: __, hours: __}, {}]
 function March({data, dataHandler} : {data:any, dataHandler:Function}) {
   const thisDiv = useRef<HTMLDivElement>(null);
 
-  const [marchAverage, setMarchAverage] = useState(0.5);
-  const [marchDay, setMarchDay] = useState(0);
+  const [marchAverage, setMarchAverage] = useState(0);
+  const [marchHours, setMarchHours] = useState(0);
 
   const [marchData, setMarchData] = useState<any[]>([]);
   const [selectedDateIndex, setSelectedDateIndex] = useState(0);
-  const [selectedDate, setSelectedDate] = useState((new Date()).toISOString().substring(0, 10));
-
+  const [selectedDateString, setSelectedDateString] = useState(formatDate(new Date()));
+  const [selectedDateObject, setSelectedDateObject] = useState(new Date());
 
   useEffect(() => {
-    let tempData = []
-
-    let avg = 0;
-    for(let i = 0; i < 16; i++) { //generate some fake data
-      let date = new Date(2023, 0, i);
-      let v = (Math.random() * 3).toFixed(3);
-      avg += parseFloat(v);
-      tempData.push({date: date, hours: v});
+    if(!data || Object.keys(data).length === 0) { //create a blank for today
+      setMarchData([{date: new Date(), hours: 0}])
     }
-
-
-    //fill in gaps up to today of 
-    let today = new Date();
-    let lastDay = tempData[tempData.length - 1].date;
-
-    let difInDays = getDifferenceDays(today, lastDay);
-
-    for(let i = 1; i < difInDays + 1; i ++) {
-      let tempDay = new Date(lastDay);
-      tempDay.setDate(tempDay.getDate() + i)
-      tempData.push({date: tempDay, hours: 0})
+    else { //fill in gaps and populate everything
+      //remap all the data to date objects
+      var remappedData = data.days.map(function(item: any) {
+        return {date: new Date(item.date), hours: item.hours};
+      });
+      formatDate(new Date())
+      setMarchData(remappedData);
+      setMarchHours(0);
+      setSelectedDateIndex(data.days.length - 1);
     }
-
-    console.log(tempData.length)
-    setMarchData(tempData);
-    setMarchAverage(parseFloat((avg/tempData.length).toFixed(3)));
-    setMarchDay(0);
-
-    setSelectedDateIndex(tempData.length);
-  },[]);
+  }, []);
 
 
   useEffect(() => { //recalc average when data is changed
@@ -53,7 +36,13 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
       total+= parseFloat(marchData[i].hours);
     }
     setMarchAverage(parseFloat((total/marchData.length).toFixed(3)));
+    dataHandler({days: marchData});
+
   }, [marchData]);
+
+  useEffect(() => {
+    setSelectedDateObject(selectedToDateObject(selectedDateString));
+  }, [selectedDateString])
 
   function getDifferenceDays(d1: Date, d2: Date) {
     var Difference_In_Time = d1.getTime() - d2.getTime();
@@ -68,52 +57,65 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
     return(false);
   }
 
-  function fillInGaps(selectedDate: Date, hour="0") {
+  function fillInGaps(selDate: Date, hour="0") {
+    console.log(selDate);
     let updated = [...marchData];
     let difInDays;
     let setHour = "0";
-    if(selectedDate < marchData[0].date) { //If the date is before any logged dates, fill backwards
-      difInDays = Math.abs(getDifferenceDays(selectedDate, marchData[0].date));
-      for(let i = 1; i < difInDays + 2; i ++) {
+    if(selDate < marchData[0].date) { //If the date is before any logged dates, fill backwards
+      difInDays = Math.abs(getDifferenceDays(selDate, marchData[0].date));
+      for(let i = 1; i < difInDays; i ++) {
         let tempDay = new Date(marchData[0].date);
         tempDay.setDate(tempDay.getDate() - i)
-        if(checkIfSameDay(tempDay, selectedDate))
+        if(checkIfSameDay(tempDay, selDate))
           setHour = hour;
-          setMarchDay(parseInt(hour));
+          setMarchHours(parseInt(hour));
         updated.unshift({date: tempDay, hours: setHour})
       }
+
+      setSelectedDateIndex(0);
     }
-    else if (selectedDate > marchData[marchData.length - 1].date) { //If date is after any logged dates, fill forwards
-      difInDays = getDifferenceDays(selectedDate, marchData[marchData.length - 1].date);
-      for(let i = 1; i < difInDays + 1; i ++) {
+    else if (selDate > marchData[marchData.length - 1].date) { //If date is after any logged dates, fill forwards
+      difInDays = getDifferenceDays(selDate, marchData[marchData.length - 1].date);
+      for(let i = 1; i < difInDays + 2; i ++) {
         let tempDay = new Date(marchData[marchData.length - 1].date);
         tempDay.setDate(tempDay.getDate() + i)
-        if(checkIfSameDay(tempDay, selectedDate))
+        if(checkIfSameDay(tempDay, selDate))
           setHour = hour;
-          setMarchDay(parseInt(hour));
+          setMarchHours(parseInt(hour));
         updated.push({date: tempDay, hours: setHour})
       }
+      
+      setSelectedDateIndex(updated.length-1)
     }
     else //if the date is some weird exception, return without changes
       return;
-
     //update
     setMarchData(updated);
   }
 
   function dateIsLogged(date: string) { //check if the date has been logged already
     for(let i = 0; i < marchData.length; i++) {
-      if(marchData[i].date.toISOString().substring(0, 10) === date)
+      if(formatDate(marchData[i].date) === date)
         return(true);
     }
     return(false);
   }
 
-  function adjustTimezone(date: Date) { //return current date based on timezone
-    var offset = new Date().getTimezoneOffset();
-    offset = offset * 60 * 1000;
-    var curDate = new Date(new Date().setTime(date.getTime() + offset));
-    return(curDate);
+  function formatDate(date: Date) { //get in ISO format without messing up timezones
+    let y = String(date.getFullYear());
+    let d = String(date.getDate());
+    let m = String(date.getMonth() + 1); // adjust for jan being 0
+    if(parseInt(m) < 10) {
+      m = "0" + String(m);
+    }
+    return(y + "-" + m + "-" + d);
+  }
+
+  function selectedToDateObject(date: string) {
+    var selectedAsDateObject = new Date(selectedDateString);
+    selectedAsDateObject.setTime(selectedAsDateObject.getTime() + selectedAsDateObject.getTimezoneOffset() *60000)
+    return(selectedAsDateObject);
   }
 
   function changeDate(e: React.FormEvent<HTMLInputElement>) {
@@ -123,7 +125,7 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
     let newDateIndex = 0;
 
     for(let i = 0; i < marchData.length; i ++) { //check if selected date has any hours logged
-      if(newD === (marchData[i].date).toISOString().substring(0, 10)) {
+      if(newD === formatDate(marchData[i].date)) {
         newDisplayNum = marchData[i].hours;
         newDateIndex = i;
         break;
@@ -132,39 +134,39 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
 
     newDisplayNum == -1 ? newDisplayNum = 0 : newDisplayNum = newDisplayNum; //if there wasn't a log, display 0
     setSelectedDateIndex(newDateIndex);
-    setSelectedDate(newD);
-    setMarchDay(newDisplayNum);
+    setSelectedDateString(newD);
+    
+    setMarchHours(newDisplayNum);
   }
 
   function changeHour(e: React.FormEvent<HTMLInputElement>) { // fix it
     let newH = e.currentTarget.value;
-    console.log(newH);
-    console.log(dateIsLogged(selectedDate))
-    if(dateIsLogged(selectedDate)) { //should do this in setstate probably
+    console.log(e.currentTarget)
+    //check if date is already existing, else fill in gaps to that date
+    if(dateIsLogged(selectedDateString)) { //should do this in setstate probably
       let updated = [...marchData];
-      updated[selectedDateIndex] = {date: marchData[selectedDateIndex].date, hours: newH};
+      updated[selectedDateIndex] = {date: marchData[selectedDateIndex].date, hours: newH}; //update hours for that date
+      console.log(updated);
       setMarchData(updated);
-      console.log(newH)
-      setMarchDay(parseFloat(newH));
+      setMarchHours(parseFloat(newH));
     }
     else {
-      console.log(selectedDate);
-      console.log(new Date(selectedDate)); //NEED TO FIX THIS TIMEZONE ISSUE
-      console.log(console.log(Intl.DateTimeFormat().resolvedOptions().timeZone))
-      fillInGaps(adjustTimezone(new Date(selectedDate)), newH);
-    }
+      console.log(new Date().getTimezoneOffset())
+      //turn the selected date into a date
 
+      fillInGaps(selectedDateObject, newH);
+    }
   }
 
 
   return (
     <div ref={thisDiv} className="march">
         <h1>Average: {marchAverage}</h1>
-        <h1>Today: {marchDay}</h1>
+        <h1>Today: {marchHours}</h1>
 
         <div id="marchInputs">
-            <input onChange={changeDate} type="date" value={selectedDate}></input>
-            <input onChange={changeHour} className="hourInput" type="number" min="0" max="24" value={marchDay}></input>
+            <input onChange={changeDate} type="date" value={selectedDateString}></input>
+            <input onChange={changeHour} className="hourInput" type="number" min="0" max="24" value={marchHours}></input>
         </div>
 
     </div>

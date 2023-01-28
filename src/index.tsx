@@ -5,10 +5,18 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { Provider } from 'react-redux'
 import allReducers from './Reducers/Index';
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit'
 
+//needed to save the large paint drawings
+const customizedMiddleware = getDefaultMiddleware({
+  serializableCheck: false,
+  immutableCheck: false
+})
 
-const store = configureStore({ reducer: allReducers })
+const store = configureStore({ 
+  reducer: allReducers,
+  middleware: customizedMiddleware,
+ })
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

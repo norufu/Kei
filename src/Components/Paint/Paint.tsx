@@ -26,6 +26,10 @@ function Paint({data, dataHandler} : {data:any, dataHandler:Function}) {
         if(thisDiv.current)
             observer.observe(thisDiv.current, { attributes : true, attributeFilter : ['style'] });
 
+        console.log(data.imageData)
+        if(data)  //set image data
+            setCanvasSave(new ImageData( data.w, data.h,data.imageData));        
+
     }, [])
 
     useEffect(() => { //when the context is created add the event listeners
@@ -35,6 +39,8 @@ function Paint({data, dataHandler} : {data:any, dataHandler:Function}) {
             ctx.fillStyle = "white";
             ctx.fillRect(0, 0, thisCanvas.current.width, thisCanvas.current.height);
             ctx.fill();
+            if(canvasSave)
+                ctx.putImageData(canvasSave, 0, 0);
             ctx.save()
         }
     }, [ctx])
@@ -46,10 +52,15 @@ function Paint({data, dataHandler} : {data:any, dataHandler:Function}) {
         ctx.fillRect(0, 0, thisCanvas.current.width, thisCanvas.current.height);
         ctx.fill();
         if(ctx && canvasSave){ //redraw past save if there is one
+            console.log(typeof(canvasSave));
             ctx.putImageData(canvasSave, 0, 0);
         }
     }, [canvasDimensions])
 
+    useEffect(() => { //return canvas data to be saved
+        dataHandler({imageData: canvasSave?.data, w: canvasSave?.width, h: canvasSave?.height, colorSpace: canvasSave?.colorSpace }); 
+        console.log(canvasSave)
+    }, [canvasSave]);
 
     let observer = new MutationObserver(function(mutations) { //check for style updates to adjust canvas size
         mutations.forEach(function(mutationRecord) {
@@ -78,8 +89,10 @@ function Paint({data, dataHandler} : {data:any, dataHandler:Function}) {
         ctx.stroke(); // draw it!
         
         //save incase resize!
-        if(thisCanvas.current && !scaleMode)
+        if(thisCanvas.current && !scaleMode){
             setCanvasSave(ctx.getImageData(0,0, thisCanvas.current.height, thisCanvas.current.width));
+            // console.log(thisCanvas.current.toDataURL)
+        }
 
     }
 

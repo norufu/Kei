@@ -67,6 +67,7 @@ function getScaleBoxData(updateX : number, updateY: number, updateW:number, upda
 function getWidgetData(data: any) {
   setWidgetData(data);
 }
+
   useEffect(() => {
     dispatch(updateWidget({ 
         id: wid,
