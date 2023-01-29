@@ -9,7 +9,7 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
   const [marchHours, setMarchHours] = useState(0);
 
   const [marchData, setMarchData] = useState<any[]>([]);
-  const [selectedDateIndex, setSelectedDateIndex] = useState(0);
+  const [selectedDateIndex, setSelectedDateIndex] = useState(-1);
   const [selectedDateString, setSelectedDateString] = useState(formatDate(new Date()));
   const [selectedDateObject, setSelectedDateObject] = useState(new Date());
 
@@ -22,10 +22,30 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
       var remappedData = data.days.map(function(item: any) {
         return {date: new Date(item.date), hours: item.hours};
       });
-      formatDate(new Date())
+
+      //check if today is included and set selected index
+      let today = new Date();
+      if(today > remappedData[remappedData.length - 1].date) {
+        let difInDays = getDifferenceDays(today, remappedData[remappedData.length - 1].date);
+        for(let i = 1; i < difInDays + 2; i ++) {
+          let tempDay = new Date(remappedData[remappedData.length - 1].date);
+          tempDay.setDate(tempDay.getDate() + i)
+          remappedData.push({date: tempDay, hours: '0'})
+        }
+        setSelectedDateIndex(remappedData.length - 1);
+      }
+      else {
+        for(let i = 0; i < remappedData.length; i++) {
+          if(checkIfSameDay(today, remappedData[i].date)) {
+            setSelectedDateIndex(i);
+          }
+        }
+      }
+
       setMarchData(remappedData);
       setMarchHours(0);
-      setSelectedDateIndex(data.days.length - 1);
+      setSelectedDateObject(today);
+      setSelectedDateString(formatDate(today));
     }
   }, []);
 
@@ -36,6 +56,7 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
       total+= parseFloat(marchData[i].hours);
     }
     setMarchAverage(parseFloat((total/marchData.length).toFixed(3)));
+    
     dataHandler({days: marchData});
 
   }, [marchData]);
@@ -51,6 +72,7 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
   }
 
   function checkIfSameDay(d1: Date, d2:Date) {
+    console.log(d1,d2)
     if(d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate()) {
       return(true)
     }
@@ -58,10 +80,10 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
   }
 
   function fillInGaps(selDate: Date, hour="0") {
-    console.log(selDate);
     let updated = [...marchData];
     let difInDays;
     let setHour = "0";
+
     if(selDate < marchData[0].date) { //If the date is before any logged dates, fill backwards
       difInDays = Math.abs(getDifferenceDays(selDate, marchData[0].date));
       for(let i = 1; i < difInDays; i ++) {
@@ -141,7 +163,7 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
 
   function changeHour(e: React.FormEvent<HTMLInputElement>) { // fix it
     let newH = e.currentTarget.value;
-    console.log(e.currentTarget)
+
     //check if date is already existing, else fill in gaps to that date
     if(dateIsLogged(selectedDateString)) { //should do this in setstate probably
       let updated = [...marchData];
