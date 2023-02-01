@@ -1,24 +1,26 @@
 import React, { useEffect, useState, useRef } from 'react';
 import './Task.css';
+import { TaskData } from '../DataTypeInterfaces';
 
-
-function Task({task, value}:{task:string, value:number}) {
+function Task({taskData, taskIndex, changeHandler}:{taskData:TaskData, taskIndex:number, changeHandler:Function}) {
     const checkOne = useRef<SVGPathElement>(null);
     const checkTwo = useRef<SVGPathElement>(null);
 
-    const [checkedValue, setCheckedValue] = useState(value);
+    const [checkedValue, setCheckedValue] = useState(taskData.value);
+    const [taskName, setTaskName] = useState(taskData.task);
 
     useEffect(() => {
-        // https://stackoverflow.com/questions/1391278/contenteditable-change-events
-    },[]);
+      //return any changes to be saved
+      changeHandler({task: taskName, value: checkedValue}, taskIndex);
+    },[taskName, checkedValue]);
 
     useEffect(() => {
       //check any already checked boxes
       if(checkOne.current && checkTwo.current)
-      if(value ==1) { //half tick
+      if(taskData.value ==1) { //half tick
         checkOne.current.setAttribute('style', 'fill: green');
       }
-      else if (value== 2) { //full tick
+      else if (taskData.value== 2) { //full tick
         checkOne.current.setAttribute('style', 'fill: green');
         checkTwo.current.setAttribute('style', 'fill: green');
       }
@@ -40,12 +42,15 @@ function Task({task, value}:{task:string, value:number}) {
       console.log("full")
     }
 
-
+    function labelChange(e: React.FocusEvent<HTMLInputElement>) {
+      let updatedText = e.target.innerHTML
+      setTaskName(updatedText);
+    }
 
   return (
     <div className="task">
       <div className="taskText">
-        <p contentEditable={true}>{task}</p>
+        <p contentEditable={true} spellCheck={false} onBlur={labelChange}>{taskName}</p>
       </div>
       <div className='taskBox'>
         <svg width="25" height="25" viewBox="0 0 203 204" fill="none" xmlns="http://www.w3.org/2000/svg">

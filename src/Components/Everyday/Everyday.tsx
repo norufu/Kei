@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './Everyday.css';
 import Task from './Task';
+import { TaskData } from '../DataTypeInterfaces';
 
 // tasks, title, width, height
 function Everyday({data, dataHandler} : {data:any, dataHandler: Function}) {
@@ -17,18 +18,19 @@ function Everyday({data, dataHandler} : {data:any, dataHandler: Function}) {
         if(data.title != undefined) 
           setTitle(data.title);
 
+        //initialize the task compnents
+        let tempArr = [];
+        for(let i = 0; i < data.tasks.length; i++) {
+            let o = <Task key={i} taskData={data.tasks[i]} taskIndex={i} changeHandler={taskChangeHandler}></Task>
+            tempArr.push(o);
+        }
+        setTaskObjects(tempArr);
         setTaskArr(data.tasks);
       }
     },[]);
 
     useEffect(() => {
-      if(taskArr==undefined) return;
-        let tempArr = [];
-        for(let i = 0; i < taskArr.length; i++) {
-            let o = <Task key={i} task={taskArr[i].task} value={taskArr[i].value}></Task>
-            tempArr.push(o);
-        }
-        setTaskObjects(tempArr);
+      dataHandler({title: title, tasks: taskArr});
     },[taskArr]);
 
     function addTask() {
@@ -36,6 +38,15 @@ function Everyday({data, dataHandler} : {data:any, dataHandler: Function}) {
       setTaskArr(oldData => { 
         if(oldData) return[...oldData, "______"];
         else return["______"];
+      })
+    }
+
+    function taskChangeHandler(updatedTask:TaskData, taskIndex:number) {
+      //update the task in the array
+      setTaskArr(oldData => { 
+        let updated = [...oldData];
+        updated[taskIndex] = updatedTask;
+        return(updated);
       })
     }
 
