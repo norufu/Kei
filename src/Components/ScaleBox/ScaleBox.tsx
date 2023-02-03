@@ -59,6 +59,9 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
         }
     }, []);
 
+    useEffect(() => {
+    }, [widgScaleX])
+
     useEffect(()=> {
         if(scaleMode)
             setEditClass(" editMode")
@@ -294,11 +297,6 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
             let eleW = ele.getBoundingClientRect().width;
             let boxH = thisBox.current.getBoundingClientRect().height;
             let eleH = ele.getBoundingClientRect().height;
-
-            // if(scaleX == 1 && scaleY == 1) { //set default dimensions to avoid under scaling
-            //     setMinDimensions({w:eleW, h:eleH});
-            //     // console.log(eleW, eleH)
-            // }
 
             let scaleValueX = (boxW-2)/eleW - 1;
             scaleValueX = widgScaleX + scaleValueX;

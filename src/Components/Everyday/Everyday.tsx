@@ -20,14 +20,21 @@ function Everyday({data, dataHandler} : {data:any, dataHandler: Function}) {
         if(data.title != undefined) 
           setTitle(data.title);
 
-        //initialize the task compnents
+        //initialize the task components
         let tempArr = [];
-        for(let i = 0; i < data.tasks.length; i++) {
+
+        if(data.tasks) { //if loading tasks from db
+          for(let i = 0; i < data.tasks.length; i++) {
             let o = <Task key={i} taskData={data.tasks[i]} taskIndex={i} changeHandler={taskChangeHandler}></Task>
             tempArr.push(o);
+          }
         }
+        else { //if creating a new widget
+          tempArr.push(<Task key={0} taskData={{task: "Click to Edit", value: 0}} taskIndex={0} changeHandler={taskChangeHandler}></Task>);
+        }
+
         setTaskObjects(tempArr);
-        setTaskArr(data.tasks);
+        setTaskArr(tempArr);
       }
     },[]);
 

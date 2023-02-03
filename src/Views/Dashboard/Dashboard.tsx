@@ -99,6 +99,11 @@ function Dashboard() {
   }
 
   function openMenu(e:any) { // on right click open menu to add
+    // console.log(e.target.id)
+    if(e.target.id !== 'dashboard') {
+      e.preventDefault();
+      return;
+    }
     let mx = e.clientX;
     let my = e.clientY;
     setShowMenu(true);
@@ -111,7 +116,6 @@ function Dashboard() {
   }
 // 
   function menuAddWidget(e:any) {
-    console.log(e.currentTarget.id)
     let w = 0;
     let h = 0;
 
@@ -123,7 +127,7 @@ function Dashboard() {
         break;
       case "everyday":
         w=200;
-        h=50;
+        h=200;
         break;
       case "march":
         w=230;
@@ -140,7 +144,6 @@ function Dashboard() {
   }
 
   function addWidget(id:number, type:string, posX:number, posY:number, w:number, h:number, scaleX:number, scaleY: number, data:any) {
-
     if(id < 0) id=widgets.length;
     let newWidget = <Widget key={id} wid={id} save={dataCallback} type={type} posX={posX} posY={posY} w={w} h={h} scaleX={scaleX} scaleY={scaleY} data={data} ></Widget>;
 
@@ -168,7 +171,7 @@ function Dashboard() {
   }
 
   return (
-    <div className={"dashboard " + gridClass}>
+    <div id='dashboard' className={"dashboard " + gridClass}>
         {showMenu && <DropdownMenu options={[{text:"Timer", handler:menuAddWidget}, {text:"Everyday", handler:menuAddWidget}, {text:"March", handler:menuAddWidget}, {text:"Paint", handler:menuAddWidget}]} cords={menuCords} closeHandler={closeHandler}/>}
         {widgets}
         <button onClick={saveToServer}>Save Test</button>
