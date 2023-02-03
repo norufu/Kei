@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './Everyday.css';
+import './Task.css';
+
 import Task from './Task';
 import { TaskData } from '../DataTypeInterfaces';
 
@@ -31,7 +33,7 @@ function Everyday({data, dataHandler} : {data:any, dataHandler: Function}) {
 
     useEffect(() => {
       dataHandler({title: title, tasks: taskArr});
-    },[taskArr]);
+    },[taskArr, title]);
 
     function addTask() {
       //add blank task
@@ -50,6 +52,10 @@ function Everyday({data, dataHandler} : {data:any, dataHandler: Function}) {
       })
     }
 
+    function titleChange(e: React.FocusEvent<HTMLInputElement>) {
+      setTitle(e.target.innerHTML);
+    }
+
     function enterHandler() {
       setShowAdd(true);
     }
@@ -59,7 +65,7 @@ function Everyday({data, dataHandler} : {data:any, dataHandler: Function}) {
 
   return (
     <div ref={thisDiv} className="everyday">
-        <p className='everydayTitle'>{title}</p>
+        <p className='title' contentEditable={true} spellCheck={false} onBlur={titleChange} suppressContentEditableWarning={true}>{title}</p>
         <div className='taskWrapper'>
           {taskObjects}
         </div>

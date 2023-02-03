@@ -16,6 +16,10 @@
     border-bottom: 1px white solid;
 }
 
+.title {
+    color: white;
+}
+
 .taskWrapper { 
     width:100%;
     height:auto;
