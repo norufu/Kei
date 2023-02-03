@@ -72,7 +72,6 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
   }
 
   function checkIfSameDay(d1: Date, d2:Date) {
-    console.log(d1,d2)
     if(d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate()) {
       return(true)
     }
@@ -168,14 +167,11 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
     if(dateIsLogged(selectedDateString)) { //should do this in setstate probably
       let updated = [...marchData];
       updated[selectedDateIndex] = {date: marchData[selectedDateIndex].date, hours: newH}; //update hours for that date
-      console.log(updated);
       setMarchData(updated);
       setMarchHours(parseFloat(newH));
     }
     else {
-      console.log(new Date().getTimezoneOffset())
       //turn the selected date into a date
-
       fillInGaps(selectedDateObject, newH);
     }
   }

@@ -34,7 +34,6 @@ function Dashboard() {
     console.log("DASHBAORD LOADED")
     axios.get("http://127.0.0.1:8000")
     .then((response : any) => {
-      console.log(response.data.token);
       setServerData(response.data.data);
       setToken(response.data.token);
     })
@@ -137,7 +136,6 @@ function Dashboard() {
       default:
         break;
     }
-    console.log(w, h)
     addWidget(-1, e.currentTarget.id, 0, 0, w, h, 1, 1, {});
   }
 

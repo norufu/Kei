@@ -26,7 +26,6 @@ function Paint({data, dataHandler} : {data:any, dataHandler:Function}) {
         if(thisDiv.current)
             observer.observe(thisDiv.current, { attributes : true, attributeFilter : ['style'] });
 
-        console.log(data.imageData)
         if(data)  //set image data
             setCanvasSave(new ImageData( data.w, data.h,data.imageData));        
 
@@ -52,14 +51,12 @@ function Paint({data, dataHandler} : {data:any, dataHandler:Function}) {
         ctx.fillRect(0, 0, thisCanvas.current.width, thisCanvas.current.height);
         ctx.fill();
         if(ctx && canvasSave){ //redraw past save if there is one
-            console.log(typeof(canvasSave));
             ctx.putImageData(canvasSave, 0, 0);
         }
     }, [canvasDimensions])
 
     useEffect(() => { //return canvas data to be saved
         dataHandler({imageData: canvasSave?.data, w: canvasSave?.width, h: canvasSave?.height, colorSpace: canvasSave?.colorSpace }); 
-        console.log(canvasSave)
     }, [canvasSave]);
 
     let observer = new MutationObserver(function(mutations) { //check for style updates to adjust canvas size
@@ -75,7 +72,6 @@ function Paint({data, dataHandler} : {data:any, dataHandler:Function}) {
     });
 
     function draw(e:React.MouseEvent) {
-        // console.log(e); //NEED TO UPDATE THIS WITH THE REACT MOUSE EVENT STUFF
         if(e.buttons !== 1 || ctx === undefined) return;
         ctx.lineWidth = 5;
         ctx.lineCap = 'round';
@@ -91,7 +87,6 @@ function Paint({data, dataHandler} : {data:any, dataHandler:Function}) {
         //save incase resize!
         if(thisCanvas.current && !scaleMode){
             setCanvasSave(ctx.getImageData(0,0, thisCanvas.current.height, thisCanvas.current.width));
-            // console.log(thisCanvas.current.toDataURL)
         }
 
     }
