@@ -2,6 +2,15 @@ MVP
 -authentication
 -handful of widgets
 
+
+currently
+-add/remove task fix
+-json file for base dimensions of widgets
+-remove widgets
+-authentication
+
+
+
 scalebox
 -zooming in makes the divs have decimal places, messing up the scaling
 -mouse offset on the resize
@@ -15,9 +24,6 @@ widget ideas
 -+-2 days
 
 
-//saving changes
--set dimensions in scalebox
--return data from Components
 
 
 

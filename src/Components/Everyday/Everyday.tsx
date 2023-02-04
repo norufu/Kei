@@ -12,29 +12,17 @@ function Everyday({data, dataHandler} : {data:any, dataHandler: Function}) {
     const [taskArr, setTaskArr] = useState<any[]>([]);
     const [title, setTitle] = useState("Title");
 
-    const [taskObjects, setTaskObjects] = useState<any>();
     const [showAdd, setShowAdd] = useState(false);
+
+    const taskObjects = generateTaskObjects();
 
     useEffect(() => {
       if(thisDiv.current) {
         if(data.title != undefined) 
           setTitle(data.title);
 
-        //initialize the task components
-        let tempArr = [];
 
-        if(data.tasks) { //if loading tasks from db
-          for(let i = 0; i < data.tasks.length; i++) {
-            let o = <Task key={i} taskData={data.tasks[i]} taskIndex={i} changeHandler={taskChangeHandler}></Task>
-            tempArr.push(o);
-          }
-        }
-        else { //if creating a new widget
-          tempArr.push(<Task key={0} taskData={{task: "Click to Edit", value: 0}} taskIndex={0} changeHandler={taskChangeHandler}></Task>);
-        }
-
-        setTaskObjects(tempArr);
-        setTaskArr(tempArr);
+        setTaskArr(data.tasks);
       }
     },[]);
 
@@ -42,12 +30,35 @@ function Everyday({data, dataHandler} : {data:any, dataHandler: Function}) {
       dataHandler({title: title, tasks: taskArr});
     },[taskArr, title]);
 
+    function generateTaskObjects() { //creates the task components 
+      let tempArr = [];
+      if(taskArr) { //if loading tasks from db
+        for(let i = 0; i < taskArr.length; i++) {
+          let o = <Task key={i} taskData={taskArr[i]} taskIndex={i} changeHandler={taskChangeHandler}></Task>
+          tempArr.push(o);
+        }
+      }
+      else { //if creating a new widget
+        tempArr.push(<Task key={0} taskData={{task: "Click to Edit", value: 0}} taskIndex={0} changeHandler={taskChangeHandler}></Task>);
+      }
+      return(tempArr);
+    }
+
     function addTask() {
       //add blank task
       setTaskArr(oldData => { 
-        if(oldData) return[...oldData, "______"];
-        else return["______"];
+        console.log(oldData);
+        if(oldData) return[...oldData, {task: "Click to Edit", value: 0}];
+        else return[ {task: "Click to Edit", value: 0}];
       })
+
+      if(thisDiv.current){
+        // thisDiv.current.style.width = "auto";
+        // thisDiv.current.style.height = "auto";
+        // let widgetRect = thisDiv.current.getBoundingClientRect();
+        // thisDiv.current.style.width = widgetRect.width + "px";
+        // thisDiv.current.style.height = widgetRect.height + "px";
+      }
     }
 
     function taskChangeHandler(updatedTask:TaskData, taskIndex:number) {

@@ -48,8 +48,8 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
             thisBox.current.style.width = w + "px";
             thisBox.current.style.height = h + "px";
             if(childElement)  {
-                childElement.style.width = minDimensions.w + "px";
-                childElement.style.height = minDimensions.h + "px";
+                // childElement.style.width = minDimensions.w + "px";
+                // childElement.style.height = minDimensions.h + "px";
             }
             //set initial position and size on load
             setPosition({x: posX, y: posY});
@@ -320,16 +320,26 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
         let widgetRect = thisBox.current.children[0].getBoundingClientRect();
         
         //shrink position to snap to where the widget is
-        let shrunkX = Math.ceil(widgetRect.left)
-        let shrunkY = Math.ceil(widgetRect.top)
+        let shrunkX = Math.ceil(widgetRect.left) - edgeSize/2;
+        let shrunkY = Math.ceil(widgetRect.top) - edgeSize/2;
+
         thisBox.current.style.left = shrunkX + "px";
         thisBox.current.style.top = shrunkY + "px";
         setPosition({x:shrunkX, y:shrunkY});
         //shrink dimensions 
-        let shrunkW =  Math.ceil(widgetRect.width) + edgeSize;
-        let shrunkH = Math.ceil(widgetRect.height) + edgeSize;
+        let shrunkW =  (widgetRect.width) ;
+        let shrunkH = (widgetRect.height) ;
+
+        //make sure its not too small
+        if(shrunkW < minD.w) shrunkW = minD.w;
+        if(shrunkH < minD.h) shrunkH = minD.h;
+
+        shrunkW+=edgeSize;
+        shrunkH+=edgeSize;
+
         thisBox.current.style.width = shrunkW + "px";
         thisBox.current.style.height = shrunkH + "px";
+       
         setDimensions({w: shrunkW, h: shrunkH});
     }
  
@@ -341,7 +351,16 @@ function ScaleBox({children, posX, posY, w, h, scaleX, scaleY, minD, dataHandler
 
     function snapToGrid() {
         if(thisBox.current === null) return;
+        let childElement =  thisBox.current.children[0] as HTMLElement | null;
+        if(childElement === null) return;
 
+        // let childRect = childElement.getBoundingClientRect();
+        // console.log(childRect);
+        // console.log(thisBox.current.getBoundingClientRect())
+        // const x =  childRect.left % gridSnap <= gridSnap/2 ? childRect.left - childRect.left % gridSnap :  childRect.left + (gridSnap - childRect.left % gridSnap)
+        // const y =  childRect.top % gridSnap <= gridSnap/2 ? childRect.top - childRect.top % gridSnap :  childRect.top + (gridSnap - childRect.top % gridSnap)
+
+        // console.log(x,y);
         let boxRect = thisBox.current.getBoundingClientRect();
         const x =  boxRect.left % gridSnap <= gridSnap/2 ? boxRect.left - boxRect.left % gridSnap :  boxRect.left + (gridSnap - boxRect.left % gridSnap)
         const y =  boxRect.top % gridSnap <= gridSnap/2 ? boxRect.top - boxRect.top % gridSnap :  boxRect.top + (gridSnap - boxRect.top % gridSnap)
