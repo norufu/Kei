@@ -11,3 +11,13 @@ ScaleBox component is what I made for the resizing and moving of widgets. A resi
 Tracks what daily goals you've completed. Able to add and edit tasks, edit title, and plan to make it track completion over the long term.
 
 ![uPYsl6yczu](https://user-images.githubusercontent.com/52996037/217280921-3e2ecfb5-46b8-474f-ae7c-d4d831b93da5.gif)
+
+
+<h3>20 Mile March</h3>
+This is a time tracking method that I have been doing for over a year based off <a href="https://www.jimcollins.com/concepts/twenty-mile-march.html">Jim Collin's 20 mile march</a>. The basic idea is rather than focusing on getting a lot done at once or every day, focus on investing hours when it fits you while maintaining a base amount over the year. The base amount helps keep you honest but the freedom allows you to take time off or invest extra time depending on life.
+
+
+<h3>Timer</h3>
+This is just a timer... use it for Pomodoro, 20 mile march tracking etc.
+
+![chrome_kdJ234V6dy](https://user-images.githubusercontent.com/52996037/217282871-57a6ae86-2314-4465-a177-791eaed8d79f.png)
