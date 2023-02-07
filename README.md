@@ -9,4 +9,5 @@ ScaleBox component is what I made for the resizing and moving of widgets. A resi
 <h1>Widget Types</h1>
 <h3>Everyday</h3>
 Tracks what daily goals you've completed. Able to add and edit tasks, edit title, and plan to make it track completion over the long term.
+
 ![uPYsl6yczu](https://user-images.githubusercontent.com/52996037/217280921-3e2ecfb5-46b8-474f-ae7c-d4d831b93da5.gif)
