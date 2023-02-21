@@ -1,20 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import DropdownMenu from '../../Components/DropdownMenu/DropdownMenu';
-import Everyday from '../../Components/Everyday/Everyday';
-import ScaleBox from '../../Components/ScaleBox/ScaleBox';
-import Timer from '../../Components/Timer/Timer';
 import { toggleScale } from '../../Actions/Index';
 import { addWidgetData } from '../../Actions/Index';
 import { useDispatch, useSelector } from 'react-redux';
 import './Dashboard.css';
 import { RootState } from '../..';
 import axios from 'axios'; 
-import internal from 'stream';
 import Widget from '../../Components/Widget/Widget';
-import March from '../../Components/March/March';
-import Paint from '../../Components/Paint/Paint';
 import widgetDimensions from '../../WidgetData.json'
 import Modal from '../../Components/Modal/Modal';
+import ModalWidgetBox from '../../Components/Modal/DashboardModal/ModalWidgetBox/ModalWidgetBox';
 
 function Dashboard() {
   const scaleMode = useSelector((state: RootState) => state.scaleMode);
@@ -40,7 +35,7 @@ function Dashboard() {
   function generateModalData() {
     let modalDataReturn = []; 
     for(let i = 0; i < wd.length; i++) {
-      modalDataReturn.push(<span className='widgetSpan'><p>{wd[i].type}</p></span>)
+      modalDataReturn.push(<ModalWidgetBox widgetType={wd[i].type} id={wd[i].id}></ModalWidgetBox>)
     }
     return(modalDataReturn)
   };
@@ -48,6 +43,7 @@ function Dashboard() {
   function generateWidgetArray() { //on rerender update any component changes
     let newWidgetArr = []
     for(let i = 0; i < wd.length; i++) {
+      //create new widget and add to array based on widget data
       let newWidget = <Widget key={wd[i].id} wid={wd[i].id} type={wd[i].type} posX={wd[i].posX} posY={wd[i].posY} w={wd[i].w} h={wd[i].h} scaleX={wd[i].scaleX} scaleY={wd[i].scaleY} data={wd[i].data}></Widget>;
       newWidgetArr.push(newWidget);
     }
@@ -76,21 +72,14 @@ function Dashboard() {
   }, [serverData]);
 
   useEffect(() => {
-    //add to redux data
     console.log(widgets);
   }, [widgets]);
 
   useEffect(() => {
-    //add to redux data
     console.log(showDashboardModal);
   }, [showDashboardModal]);
 
-  //save board state
-  const dataCallback = (widgetData : {}) =>{
-    console.log(widgetData);
-  }
-
-  //
+  //Save updates to server
   function saveToServer() {
     console.log(wd);
     axios({
@@ -189,16 +178,12 @@ function Dashboard() {
     setShowDashboardModal(true);
   }
 
-  // function closeModal(e:React.MouseEvent<HTMLElement>) {
-  //   setShowDashboardModal(false);
-  //   console.log("omega")
-  // }
   const closeModal = (e:React.MouseEvent<HTMLElement>) => {
     setShowDashboardModal(false);
   }
   return (
     <div id='dashboard' className={"dashboard " + gridClass} onKeyUp={keyPress} onContextMenu={openMenu} tabIndex={0}>
-      <Modal closeHandler={closeModal} show={showDashboardModal}><div>{modalData}</div></Modal>
+      <Modal closeHandler={closeModal} show={showDashboardModal}><>{modalData}</></Modal>
         {showMenu && <DropdownMenu options={[{text:"Timer", handler:menuAddWidget}, {text:"Everyday", handler:menuAddWidget}, {text:"March", handler:menuAddWidget},  {text:"Paint", handler:menuAddWidget}, {text:"SEPARATOR", handler:menuAddWidget}, {text:"Options", handler:openModal} ]} cords={menuCords} closeHandler={closeHandler}/>}
         {widgets}
         <button onClick={saveToServer}>Save Test</button>
