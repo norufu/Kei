@@ -5,17 +5,45 @@
     min-width: 40px;
     width:fit-content;
     height:auto;
-    padding:10px;
+    /* padding:10px; */
+    z-index: 50;
 }
 
 .menuButton {
     width:100%;
+    height:30px;
     border:none;
     background-color: white;
-    padding:5px;
+    /* padding-top:5px; */
     text-align: left;
 }
 
 .menuButton:hover {
     background-color: rgb(187, 187, 187);
+}
+
+.separator {
+    border: none;
+    margin:0px;
+    padding:0px;
+    width:100%;;
+    height:1px;
+    background-color: rgb(161, 161, 161);
+
+}
+
+.groupSeparator {
+    border: none;
+    margin:0px;
+    padding:0px;
+    width:100%;;
+    height:3px;
+    background-color: rgb(68, 68, 68);
+}
+
+
+.widgetSpan {
+    display:block;
+    width:100%;
+    height:50px;
 }

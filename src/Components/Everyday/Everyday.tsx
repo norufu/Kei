@@ -64,8 +64,14 @@ function Everyday({data, dataHandler} : {data:any, dataHandler: Function}) {
     function taskChangeHandler(updatedTask:TaskData, taskIndex:number) {
       //update the task in the array
       setTaskArr(oldData => { 
-        let updated = [...oldData];
-        updated[taskIndex] = updatedTask;
+        let updated;
+        if(oldData) {
+          updated = [...oldData];
+          updated[taskIndex] = updatedTask;
+        }
+        else {
+          updated = [updatedTask]
+        }
         return(updated);
       })
     }

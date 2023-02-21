@@ -13,13 +13,15 @@ import internal from 'stream';
 import Widget from '../../Components/Widget/Widget';
 import March from '../../Components/March/March';
 import Paint from '../../Components/Paint/Paint';
-
+import widgetDimensions from '../../WidgetData.json'
+import Modal from '../../Components/Modal/Modal';
 
 function Dashboard() {
   const scaleMode = useSelector((state: RootState) => state.scaleMode);
   const wd = useSelector((state: RootState) => state.widgetData);
 
   const [showMenu, setShowMenu] = useState(false);
+  const [showWidgetMenu, setShowWidgetMenu] = useState(false);
   const [menuCords, setMenuCords] = useState({x:0, y:0});
   const [widgets, setWidgets] = useState<JSX.Element[]>([]);
 
@@ -30,6 +32,19 @@ function Dashboard() {
   const [token, setToken] = useState<string>("");
   const [widgID, setWidgID] = useState(0);
 
+  const [showDashboardModal, setShowDashboardModal] = useState(true);
+
+  const modalData = generateModalData();
+
+  function generateModalData() {
+    let modalDataReturn = []; 
+    for(let i = 0; i < wd.length; i++) {
+      console.log(wd[i]);
+      modalDataReturn.push(<span className='widgetSpan'><p>{wd[i].type}</p></span>)
+    }
+    return(modalDataReturn)
+  };
+
   useEffect(() => {
     console.log("DASHBAORD LOADED")
     axios.get("http://127.0.0.1:8000")
@@ -37,12 +52,6 @@ function Dashboard() {
       setServerData(response.data.data);
       setToken(response.data.token);
     })
-
-    document.addEventListener("keydown", keyPress);
-
-    document.addEventListener("contextmenu", (e) => {
-      openMenu(e)
-    });
   }, []);
 
   useEffect(() => {
@@ -63,6 +72,10 @@ function Dashboard() {
     console.log(widgets);
   }, [widgets]);
 
+  useEffect(() => {
+    //add to redux data
+    console.log(showDashboardModal);
+  }, [showDashboardModal]);
 
   //save board state
   const dataCallback = (widgetData : {}) =>{
@@ -92,50 +105,53 @@ function Dashboard() {
       setGridClass("");
   }, [scaleMode]);
 
-  function keyPress(e:any) {
+  function keyPress(e:React.KeyboardEvent) {
     if(e.key === 'Shift') {
       dispatch(toggleScale());
     }
   }
 
   function openMenu(e:any) { // on right click open menu to add
-    // console.log(e.target.id)
-    if(e.target.id !== 'dashboard') {
-      e.preventDefault();
-      return;
-    }
-    let mx = e.clientX;
-    let my = e.clientY;
-    setShowMenu(true);
-    setMenuCords({x:mx,y:my});
     e.preventDefault()
+
+    console.log(e.target);
+    if(e.target.id === 'dashboard') {
+      let mx = e.clientX;
+      let my = e.clientY;
+      setShowMenu(true);
+      setShowWidgetMenu(false);
+      setMenuCords({x:mx-10,y:my-10});
+    }
+    else {
+    }
   }
 
   function closeHandler() {
     setShowMenu(false)
+    setShowWidgetMenu(false);
   }
-// 
-  function menuAddWidget(e:any) {
+ 
+  function menuAddWidget(e: React.MouseEvent<HTMLElement>) {
     let w = 0;
     let h = 0;
-
-    //set default w/h values
+    let widgetType = e.currentTarget.id.toLowerCase().toString()
+    //set default w/h values      - ideally figure out to do widgetDimensions[variable] in typescript
     switch(e.currentTarget.id.toLowerCase()) {
-      case "timer":
-        w=300;
-        h=83;
+      case "timer": 
+        w=widgetDimensions.timer.w;
+        h=widgetDimensions.timer.h;
         break;
       case "everyday":
-        w=200;
-        h=200;
+        w=widgetDimensions.everyday.w;
+        h=widgetDimensions.everyday.h;
         break;
       case "march":
-        w=230;
-        h=185;
+        w=widgetDimensions.march.w;
+        h=widgetDimensions.march.h;
         break;
       case "paint":
-        w=200;
-        h=200;
+        w=widgetDimensions.paint.w;
+        h=widgetDimensions.paint.h;
         break;
       default:
         break;
@@ -143,10 +159,25 @@ function Dashboard() {
     addWidget(-1, e.currentTarget.id, 0, 0, w, h, 1, 1, {});
   }
 
+  function removeWidget(e:React.MouseEvent<HTMLElement>, id: number) {
+    console.log(widgets)
+    console.log(id)
+    test()
+  }
+
+  const testArrow = () => {
+    console.log("please for the love of god");
+    console.log(widgets);
+  }
+
+  function test() {
+    console.log(widgets);
+  }
+
   function addWidget(id:number, type:string, posX:number, posY:number, w:number, h:number, scaleX:number, scaleY: number, data:any) {
     if(id < 0) id=widgets.length;
-    let newWidget = <Widget key={id} wid={id} save={dataCallback} type={type} posX={posX} posY={posY} w={w} h={h} scaleX={scaleX} scaleY={scaleY} data={data} ></Widget>;
-
+    let newWidget = <Widget key={id} wid={id} save={dataCallback} type={type} posX={posX} posY={posY} w={w} h={h} scaleX={scaleX} scaleY={scaleY} data={data} removeHandler={testArrow}></Widget>;
+    console.log(widgets)
     setWidgets(oldData => {
       if(oldData.length !== 0) {
         return [...oldData, newWidget]; 
@@ -155,6 +186,7 @@ function Dashboard() {
         return [newWidget]; 
       }
     })
+    console.log(widgets)
 
     //add to redux data
     dispatch(addWidgetData({ 
@@ -170,9 +202,21 @@ function Dashboard() {
     setWidgID(widgID + 1);
   }
 
+  function openModal() {
+    setShowDashboardModal(true);
+  }
+
+  // function closeModal(e:React.MouseEvent<HTMLElement>) {
+  //   setShowDashboardModal(false);
+  //   console.log("omega")
+  // }
+  const closeModal = (e:React.MouseEvent<HTMLElement>) => {
+    setShowDashboardModal(false);
+  }
   return (
-    <div id='dashboard' className={"dashboard " + gridClass}>
-        {showMenu && <DropdownMenu options={[{text:"Timer", handler:menuAddWidget}, {text:"Everyday", handler:menuAddWidget}, {text:"March", handler:menuAddWidget}, {text:"Paint", handler:menuAddWidget}]} cords={menuCords} closeHandler={closeHandler}/>}
+    <div id='dashboard' className={"dashboard " + gridClass} onKeyUp={keyPress} onContextMenu={openMenu} tabIndex={0}>
+      <Modal closeHandler={closeModal} show={showDashboardModal}><div>{modalData}</div></Modal>
+        {showMenu && <DropdownMenu options={[{text:"Timer", handler:menuAddWidget}, {text:"Everyday", handler:menuAddWidget}, {text:"March", handler:menuAddWidget},  {text:"Paint", handler:menuAddWidget}, {text:"SEPARATOR", handler:menuAddWidget}, {text:"Options", handler:openModal} ]} cords={menuCords} closeHandler={closeHandler}/>}
         {widgets}
         <button onClick={saveToServer}>Save Test</button>
         {/* <Paint data={{}}></Paint> */}

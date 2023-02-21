@@ -7,6 +7,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateWidget } from '../../Actions/Index';
 import March from '../March/March';
 import Paint from '../Paint/Paint';
+import DropdownMenu from '../DropdownMenu/DropdownMenu';
+import widgetDimenions from '../../WidgetData.json';
+import Dashboard from '../../Views/Dashboard/Dashboard';
 
 interface scaleBoxData {
   posX: number;
@@ -17,8 +20,10 @@ interface scaleBoxData {
   scaleY: number;
 }
 
-function Widget({wid, save, type, posX, posY, w, h, scaleX, scaleY, data} : {wid: number, save:Function, type:string, posX:number, posY:number, w:number, h:number, scaleX:number, scaleY:number, data:any}) {
+function Widget({wid, save, type, posX, posY, w, h, scaleX, scaleY, data, removeHandler} : {wid: number, save:Function, type:string, posX:number, posY:number, w:number, h:number, scaleX:number, scaleY:number, data:any, removeHandler:Function}) {
   const dispatch = useDispatch();
+  const [showWidgetMenu, setShowWidgetMenu] = useState(false);
+  const [menuCords, setMenuCords] = useState({x:0, y:0});
 
   const [comp, setComp] = useState<JSX.Element>();
   const [scaleBoxData, setScaleBoxData] = useState<scaleBoxData>({posX: posX, posY: posY, w: w, h: h, scaleX: scaleX, scaleY: scaleY});
@@ -27,29 +32,23 @@ function Widget({wid, save, type, posX, posY, w, h, scaleX, scaleY, data} : {wid
 
   useEffect(() => {
     let newWidget;
+    console.log(widgetDimenions)
     switch(type.toLowerCase()) {
         case "timer":
           newWidget = <Timer dataHandler={getWidgetData} data={data}/>
-          setMinDimensions({w:300, h:80});
-
-          //set default values if not set
-          if(scaleBoxData.w == 0 || scaleBoxData.h == 0) {
-
-            w = 300;
-            h = 80;
-          }
+          setMinDimensions(widgetDimenions.timer);
           break;
         case "everyday":
           newWidget = <Everyday dataHandler={getWidgetData} data={data}/>
-          setMinDimensions({w:200, h:200});
+          setMinDimensions(widgetDimenions.everyday);
           break;
         case "march":
           newWidget = <March dataHandler={getWidgetData} data={data}/>
-          setMinDimensions({w:230, h:185});
+          setMinDimensions(widgetDimenions.march);
           break;
         case "paint":
           newWidget = <Paint dataHandler={getWidgetData} data={data}/>
-          setMinDimensions({w:200, h:200});
+          setMinDimensions(widgetDimenions.paint);
           break;
         default:
           newWidget = null;
@@ -83,11 +82,27 @@ function getWidgetData(data: any) {
   }, [scaleBoxData, widgetData]);
 
 
-  
+  function openMenu(e:React.MouseEvent<HTMLElement>) { // on right click open menu to add
+    e.preventDefault()
+    let mx = e.clientX;
+    let my = e.clientY;
+    setShowWidgetMenu(true);
+    setMenuCords({x:mx-10,y:my-10});
+  }
+  function removeWidget(e:React.MouseEvent<HTMLElement>) {
+    removeHandler(e, wid)
+  }
 
+  function closeHandler() {
+    setShowWidgetMenu(false)
+  }
 
   return (
-      <>{comp ? <ScaleBox dataHandler={getScaleBoxData} w={w} h={h} posX={posX} posY={posY} scaleX={scaleX} scaleY={scaleY} minD={minDimensions} children={comp}></ScaleBox> : <></> }</>
+      <div onContextMenu={openMenu}>
+        {showWidgetMenu && <DropdownMenu options={[{text:"Remove Widget", handler:removeWidget}]} cords={menuCords} closeHandler={closeHandler}/>}
+
+        {comp ? <ScaleBox dataHandler={getScaleBoxData} w={w} h={h} posX={posX} posY={posY} scaleX={scaleX} scaleY={scaleY} minD={minDimensions} children={comp}></ScaleBox> : <></> }
+      </div>
       
   );
 }
