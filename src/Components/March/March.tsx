@@ -14,8 +14,14 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
   const [selectedDateObject, setSelectedDateObject] = useState(new Date());
 
   useEffect(() => {
+    let today = new Date();
+
     if(!data || Object.keys(data).length === 0) { //create a blank for today
       setMarchData([{date: new Date(), hours: 0}])
+      setSelectedDateIndex(0);
+      setSelectedDateObject(today);
+      setSelectedDateString(formatDate(today));
+      setMarchHours(0);
     }
     else { //fill in gaps and populate everything
       //remap all the data to date objects
@@ -23,8 +29,8 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
         return {date: new Date(item.date), hours: item.hours};
       });
 
+      var dateIndex = -1;
       //check if today is included and set selected index
-      let today = new Date();
       if(today > remappedData[remappedData.length - 1].date) {
         let difInDays = getDifferenceDays(today, remappedData[remappedData.length - 1].date);
         for(let i = 1; i < difInDays + 2; i ++) {
@@ -32,18 +38,19 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
           tempDay.setDate(tempDay.getDate() + i)
           remappedData.push({date: tempDay, hours: '0'})
         }
-        setSelectedDateIndex(remappedData.length - 1);
+        dateIndex = remappedData.length - 1;
       }
       else {
         for(let i = 0; i < remappedData.length; i++) {
           if(checkIfSameDay(today, remappedData[i].date)) {
-            setSelectedDateIndex(i);
+            dateIndex = i;
           }
         }
       }
 
+      setSelectedDateIndex(dateIndex);
       setMarchData(remappedData);
-      setMarchHours(0);
+      setMarchHours(remappedData[dateIndex].hours);
       setSelectedDateObject(today);
       setSelectedDateString(formatDate(today));
     }
@@ -79,10 +86,12 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
   }
 
   function fillInGaps(selDate: Date, hour="0") {
+    console.log('fillin')
     let updated = [...marchData];
     let difInDays;
     let setHour = "0";
-
+    console.log(marchData)
+    console.log(selDate, marchData[marchData.length - 1].date)
     if(selDate < marchData[0].date) { //If the date is before any logged dates, fill backwards
       difInDays = Math.abs(getDifferenceDays(selDate, marchData[0].date));
       for(let i = 1; i < difInDays; i ++) {
@@ -110,8 +119,13 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
       setSelectedDateIndex(updated.length-1)
     }
     else //if the date is some weird exception, return without changes
+    {
+      console.log('exception')
       return;
+
+    }
     //update
+    console.log(updated);
     setMarchData(updated);
   }
 
@@ -161,11 +175,13 @@ function March({data, dataHandler} : {data:any, dataHandler:Function}) {
   }
 
   function changeHour(e: React.FormEvent<HTMLInputElement>) { // fix it
+    console.log(dateIsLogged(selectedDateString))
     let newH = e.currentTarget.value;
 
     //check if date is already existing, else fill in gaps to that date
     if(dateIsLogged(selectedDateString)) { //should do this in setstate probably
       let updated = [...marchData];
+      console.log(selectedDateIndex)
       updated[selectedDateIndex] = {date: marchData[selectedDateIndex].date, hours: newH}; //update hours for that date
       setMarchData(updated);
       setMarchHours(parseFloat(newH));

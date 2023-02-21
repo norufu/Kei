@@ -72,11 +72,9 @@ function Dashboard() {
   }, [serverData]);
 
   useEffect(() => {
-    console.log(widgets);
   }, [widgets]);
 
   useEffect(() => {
-    console.log(showDashboardModal);
   }, [showDashboardModal]);
 
   //Save updates to server
