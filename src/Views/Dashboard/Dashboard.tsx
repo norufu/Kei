@@ -23,7 +23,7 @@ function Dashboard() {
   const [showMenu, setShowMenu] = useState(false);
   const [showWidgetMenu, setShowWidgetMenu] = useState(false);
   const [menuCords, setMenuCords] = useState({x:0, y:0});
-  const [widgets, setWidgets] = useState<JSX.Element[]>([]);
+  // const [widgets, setWidgets] = useState<JSX.Element[]>([]);
 
   const [gridClass, setGridClass] = useState("");
   const dispatch = useDispatch();
@@ -35,15 +35,25 @@ function Dashboard() {
   const [showDashboardModal, setShowDashboardModal] = useState(true);
 
   const modalData = generateModalData();
+  const widgets = generateWidgetArray();
 
   function generateModalData() {
     let modalDataReturn = []; 
     for(let i = 0; i < wd.length; i++) {
-      console.log(wd[i]);
       modalDataReturn.push(<span className='widgetSpan'><p>{wd[i].type}</p></span>)
     }
     return(modalDataReturn)
   };
+
+  function generateWidgetArray() { //on rerender update any component changes
+    let newWidgetArr = []
+    for(let i = 0; i < wd.length; i++) {
+      let newWidget = <Widget key={wd[i].id} wid={wd[i].id} type={wd[i].type} posX={wd[i].posX} posY={wd[i].posY} w={wd[i].w} h={wd[i].h} scaleX={wd[i].scaleX} scaleY={wd[i].scaleY} data={wd[i].data}></Widget>;
+      newWidgetArr.push(newWidget);
+    }
+    return(newWidgetArr);
+  } 
+
 
   useEffect(() => {
     console.log("DASHBAORD LOADED")
@@ -60,10 +70,8 @@ function Dashboard() {
       console.log("SERVER DATA UPDATED")
 
       for(let i = 0; i < serverData.length; i++) {
-        console.log(serverData[i])
         addWidget(i, serverData[i].type, serverData[i].posX, serverData[i].posY, serverData[i].w, serverData[i].h, serverData[i].scaleX, serverData[i].scaleY, serverData[i].data)
       }
-
     }
   }, [serverData]);
 
@@ -159,34 +167,9 @@ function Dashboard() {
     addWidget(-1, e.currentTarget.id, 0, 0, w, h, 1, 1, {});
   }
 
-  function removeWidget(e:React.MouseEvent<HTMLElement>, id: number) {
-    console.log(widgets)
-    console.log(id)
-    test()
-  }
-
-  const testArrow = () => {
-    console.log("please for the love of god");
-    console.log(widgets);
-  }
-
-  function test() {
-    console.log(widgets);
-  }
 
   function addWidget(id:number, type:string, posX:number, posY:number, w:number, h:number, scaleX:number, scaleY: number, data:any) {
-    if(id < 0) id=widgets.length;
-    let newWidget = <Widget key={id} wid={id} save={dataCallback} type={type} posX={posX} posY={posY} w={w} h={h} scaleX={scaleX} scaleY={scaleY} data={data} removeHandler={testArrow}></Widget>;
-    console.log(widgets)
-    setWidgets(oldData => {
-      if(oldData.length !== 0) {
-        return [...oldData, newWidget]; 
-      }
-      else {
-        return [newWidget]; 
-      }
-    })
-    console.log(widgets)
+
 
     //add to redux data
     dispatch(addWidgetData({ 

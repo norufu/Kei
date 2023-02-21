@@ -4,12 +4,13 @@ import ScaleBox from '../ScaleBox/ScaleBox';
 import Timer from '../Timer/Timer';
 import './Widget.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateWidget } from '../../Actions/Index';
+import { updateWidget, removeWidget } from '../../Actions/Index';
 import March from '../March/March';
 import Paint from '../Paint/Paint';
 import DropdownMenu from '../DropdownMenu/DropdownMenu';
 import widgetDimenions from '../../WidgetData.json';
 import Dashboard from '../../Views/Dashboard/Dashboard';
+import { useAppDispatch } from '../..';
 
 interface scaleBoxData {
   posX: number;
@@ -20,8 +21,8 @@ interface scaleBoxData {
   scaleY: number;
 }
 
-function Widget({wid, save, type, posX, posY, w, h, scaleX, scaleY, data, removeHandler} : {wid: number, save:Function, type:string, posX:number, posY:number, w:number, h:number, scaleX:number, scaleY:number, data:any, removeHandler:Function}) {
-  const dispatch = useDispatch();
+function Widget({wid, type, posX, posY, w, h, scaleX, scaleY, data} : {wid: number, type:string, posX:number, posY:number, w:number, h:number, scaleX:number, scaleY:number, data:any}) {
+  const dispatch = useAppDispatch();
   const [showWidgetMenu, setShowWidgetMenu] = useState(false);
   const [menuCords, setMenuCords] = useState({x:0, y:0});
 
@@ -89,8 +90,12 @@ function getWidgetData(data: any) {
     setShowWidgetMenu(true);
     setMenuCords({x:mx-10,y:my-10});
   }
-  function removeWidget(e:React.MouseEvent<HTMLElement>) {
-    removeHandler(e, wid)
+
+  function deleteWidget(e:React.MouseEvent<HTMLElement>) {
+    console.log(wid);
+    let t = wid
+    //remove from redux
+    dispatch(removeWidget({id:wid}));
   }
 
   function closeHandler() {
@@ -99,7 +104,7 @@ function getWidgetData(data: any) {
 
   return (
       <div onContextMenu={openMenu}>
-        {showWidgetMenu && <DropdownMenu options={[{text:"Remove Widget", handler:removeWidget}]} cords={menuCords} closeHandler={closeHandler}/>}
+        {showWidgetMenu && <DropdownMenu options={[{text:"Remove Widget", handler:deleteWidget}]} cords={menuCords} closeHandler={closeHandler}/>}
 
         {comp ? <ScaleBox dataHandler={getScaleBoxData} w={w} h={h} posX={posX} posY={posY} scaleX={scaleX} scaleY={scaleY} minD={minDimensions} children={comp}></ScaleBox> : <></> }
       </div>

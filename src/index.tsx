@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { Provider } from 'react-redux'
+import { Provider, TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import allReducers from './Reducers/Index';
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit'
 
@@ -25,7 +25,9 @@ const root = ReactDOM.createRoot(
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch
 
-
+// Use throughout your app instead of plain `useDispatch` and `useSelector`
+export const useAppDispatch: () => AppDispatch = useDispatch;
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 root.render(
   <Provider store={store}>

@@ -12,9 +12,10 @@ export const addWidgetData = (data: any) => {
     };
 }
 
-export const removeWidgetData = (data: any) => {
+export const removeWidget = (data: any) => {
     return{
-        type: "REMOVE"
+        type: "REMOVE",
+        data: data
     };
 }
 
