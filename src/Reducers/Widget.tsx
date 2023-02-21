@@ -8,11 +8,17 @@ const widgetReducer = (state:any[] = [], action: any) => {
             // return(newState);
             return [...state, action.data]; 
         case "REMOVE":
-            console.log(action);
-            return state;
+            console.log(action.data.id);
+            var updated = [...state];
+            for(let i =0; i < updated.length; i++) {
+                if(updated[i].id == action.data.id) { //remove widget of data.id
+                    updated.splice(i, 1);
+                    break;
+                }
+            }
+            return(updated);
         case "UPDATE":
-
-            let updated = [...state];
+            var updated = [...state];
             for(let i =0; i < updated.length; i++) {
                 if(updated[i].id == action.data.id) {
                     updated[i] = action.data;
