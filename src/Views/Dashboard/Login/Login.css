@@ -1,0 +1,22 @@
+#loginWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.formBlock{
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    justify-content: left;
+    margin-bottom: 5px;;
+}
+
+label {
+    float: left;
+}
+
+#formSubmitButton {
+    width:100%;
+}

@@ -1,0 +1,38 @@
+#registerWrapper {
+    height:100%;
+    width:100%;
+    display:flex;
+    align-items: top;
+    justify-content: center;
+}
+#formWrapper {
+    height:fit-content;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    margin-top:100px;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 3px;
+
+    background-color: rgba(77, 74, 74, 0.1);;
+    padding:20px;
+}
+form {
+    width:100%;
+    height:auto;
+}
+
+form label { 
+    color:rgb(231, 231, 231);
+}
+
+td {
+    padding:5px;
+}
+table {
+    padding-bottom: 5px;
+}
+#formSubmitButton {
+    width:100%;
+    height:30px;
+}
